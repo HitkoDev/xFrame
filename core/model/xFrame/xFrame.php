@@ -65,21 +65,27 @@ class xFrame {
 				ksort($arguments);
 				$tagHash = md5($key . '_' . serialize($arguments));
 				
-				//$value = $cacheManager->load($tagHash);
+				$value = $cacheManager->load($tagHash);
 				
 				if(!$value){
 				
 					// determine tag type
 					$type = 'function';
-					var_dump(substr($key, 0, 1));
 					if(isset($parseTypes[ substr($key, 0, 1) ])){
 						$type = $parseTypes[ substr($key, 0, 1) ];
 						$key = substr($key, 1);
 					}
-					
-					var_dump($key);
-					var_dump($arguments);
-					var_dump($type);
+						
+					// extract property sets from key
+					$propertySets = array_filter(array_map('trim', explode(':', $key)));
+					$key = array_shift($propertySets);
+						
+					// check cache
+					$uncached = substr($key, 0, 1) == '!' ? true : false;
+					if($uncached){
+						$key = substr($key, 1);
+						$cachable = false;
+					}
 					
 					if($type == 'property'){
 						
@@ -93,24 +99,13 @@ class xFrame {
 						
 					} else {
 						
-						// extract property sets from key
-						$propertySets = array_filter(array_map('trim', explode(':', $key)));
-						$key = array_shift($propertySets);
-						
-						// check cache
-						$uncached = substr($key, 0, 1) == '!' ? true : false;
-						if($uncached){
-							$key = substr($key, 1);
-							$cachable = false;
-						}
-						
 						$props = $this->loadProperties($key, $type);	// load default property set
 						foreach($propertySets as $propertySet) $props = array_merge($props, $this->loadProperties($key, $type, $propertySet));		// merge any additional property sets
 						$arguments = array_merge($properties, $props, $arguments);	// merge property sets with tag arguments
 						
 					}
 					
-					//$cacheManager->store($tagHash, $value);
+					$cacheManager->store($tagHash, $value);
 					
 				}
 				
