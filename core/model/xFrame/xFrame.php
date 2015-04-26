@@ -27,7 +27,7 @@ class xFrame {
 				var_dump($tag);
 				$key = trim($tag[1]);
 				$arguments = array();
-				if(preg_match_all('/[\?&][[:alnum:]]+=`[^`]*`/u', trim($tag[2]), $args)){
+				if(preg_match_all('/[\?&][[:alnum:]]+=`[^`]*`/u', trim($tag[2]), $args, PREG_SET_ORDER)){
 					var_dump($args);
 				}
 			}
