@@ -22,14 +22,17 @@ class xFrame {
 	}
 	
 	function parseTags($text){
-		if(preg_match_all('/\[\[([^\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*).*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){
+		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){
 			foreach($tags as $tag){
-				var_dump($tag);
 				$key = trim($tag[1]);
 				$arguments = array();
-				if(preg_match_all('/[\?&]([[:alnum:]]+)=`([^`]*)`/u', trim($tag[2]), $args, PREG_SET_ORDER)){
-					var_dump($args);
+				if(preg_match_all('/[\?&]([[:alnum:]]+)=`([^`]*)`/u', trim($tag[2]), $args, PREG_SET_ORDER) > 0){
+					foreach($args as $arg){
+						$arguments[trim($arg[1])] = trim($arg[2]);
+					}
 				}
+				$chached = substr($key, 0, 1) == '!' ? true : false;
+				if($cached) $key = substr($key, 1);
 			}
 		}
 		
