@@ -11,6 +11,10 @@ class xFrame {
 			if(count($val) > 1) $query[ array_shift($val) ] = $val;
 		}
 		$this->query = $query;
+		
+		include_once(CORE_PATH . '/model/cacheManager/cacheManager.php');
+		$this->cacheManager = new CacheManager();
+		
 	}
 	
 	function parseTemplate($template = 'default'){
@@ -21,22 +25,64 @@ class xFrame {
 		return $output;
 	}
 	
-	function parseTags($text){
-		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){
+	function parseTags($text, $properties = array()){
+		
+		$cachable = true;
+		
+		// todo: obtain parseTypes from available tag types
+		$parseTypes = array(
+			'+' => 'field',
+			'$' => 'property',
+			'#' => 'text',
+		);
+		
+		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){	// extract tags
 			foreach($tags as $tag){
+				
 				$key = trim($tag[1]);
+				
+				// parse tag arguments
 				$arguments = array();
 				if(preg_match_all('/[\?&]([[:alnum:]]+)=`([^`]*)`/u', trim($tag[2]), $args, PREG_SET_ORDER) > 0){
 					foreach($args as $arg){
 						$arguments[trim($arg[1])] = trim($arg[2]);
 					}
 				}
-				$chached = substr($key, 0, 1) == '!' ? true : false;
-				if($cached) $key = substr($key, 1);
+				
+				// generate tag hash
+				$arguments = ksort($arguments);
+				$tagHash = md5($key . '_' . serialize($arguments));
+				
+				// extract property sets from key
+				$propertySets = array_filter(array_map('trim', explode(':', $key)));
+				$key = array_shift($propertySets);
+				
+				// check cache
+				$uncached = substr($key, 0, 1) == '!' ? true : false;
+				if($uncached){
+					$key = substr($key, 1);
+					$cachable = false;
+				}
+				
+				// determine tag type
+				$type = 'function';
+				if(in_array(substr($key, 0, 1), $parseTypes)){
+					$type = $parseTypes[ substr($key, 0, 1) ];
+					$key = substr($key, 1);
+				}
+				
+				$props = $this->loadProperties($key, $type);	// load default property set
+				foreach($propertySets as $propertySet) $props = array_merge($props, $this->loadProperties($key, $type, $propertySet));		// merge any additional property sets
+				$arguments = array_merge($props, $arguments);	// merge property sets with tag arguments
+				
 			}
 		}
 		
 		return $text;
+	}
+	
+	function loadProperties($id, $type = 'resource', $key = 'default'){
+		return array();
 	}
 	
 }
