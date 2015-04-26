@@ -65,7 +65,7 @@ class xFrame {
 				$arguments = ksort($arguments);
 				$tagHash = md5($key . '_' . serialize($arguments));
 				
-				$value = $cacheManager->load($tagHash);
+				//$value = $cacheManager->load($tagHash);
 				
 				if(!$value){
 				
@@ -105,7 +105,7 @@ class xFrame {
 						
 					}
 					
-					$cacheManager->store($tagHash, $value);
+					//$cacheManager->store($tagHash, $value);
 					
 				}
 				
