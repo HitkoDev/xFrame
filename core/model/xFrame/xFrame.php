@@ -2,7 +2,7 @@
 
 class xFrame {
 	
-	function __construct(){
+	function __construct($context){
 		$GLOBALS['xFrame'] = $this;
 		$query = array();
 		if($_REQUEST['req']) $req = array_map('trim', explode('/', $_REQUEST['req']));
@@ -11,7 +11,11 @@ class xFrame {
 			if(count($val) > 1) $query[ array_shift($val) ] = $val;
 		}
 		$this->query = $query;
-		$this->getModel('cacheManager');
+		if($context) $this->loadContext($context);
+	}
+	
+	function loadContext($name){
+		$this->context = $this->loadProperties($name, 'context');
 	}
 	
 	function getModel($name){
@@ -41,6 +45,8 @@ class xFrame {
 			'#' => 'text',
 		);
 		
+		$cacheManager = $this->getModel('cacheManager');
+				
 		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){	// extract tags
 			foreach($tags as $tag){
 				
@@ -58,27 +64,42 @@ class xFrame {
 				$arguments = ksort($arguments);
 				$tagHash = md5($key . '_' . serialize($arguments));
 				
-				// extract property sets from key
-				$propertySets = array_filter(array_map('trim', explode(':', $key)));
-				$key = array_shift($propertySets);
+				$value = $cacheManager->load($tagHash);
 				
-				// check cache
-				$uncached = substr($key, 0, 1) == '!' ? true : false;
-				if($uncached){
-					$key = substr($key, 1);
-					$cachable = false;
+				if(!$value){
+				
+					// determine tag type
+					$type = 'function';
+					if(in_array(substr($key, 0, 1), $parseTypes)){
+						$type = $parseTypes[ substr($key, 0, 1) ];
+						$key = substr($key, 1);
+					}
+					
+					if($type == 'property'){
+						
+						
+						
+					} else {
+						
+						// extract property sets from key
+						$propertySets = array_filter(array_map('trim', explode(':', $key)));
+						$key = array_shift($propertySets);
+						
+						// check cache
+						$uncached = substr($key, 0, 1) == '!' ? true : false;
+						if($uncached){
+							$key = substr($key, 1);
+							$cachable = false;
+						}
+						
+						$props = $this->loadProperties($key, $type);	// load default property set
+						foreach($propertySets as $propertySet) $props = array_merge($props, $this->loadProperties($key, $type, $propertySet));		// merge any additional property sets
+						$arguments = array_merge($props, $arguments);	// merge property sets with tag arguments
+						
+					}
+					
 				}
 				
-				// determine tag type
-				$type = 'function';
-				if(in_array(substr($key, 0, 1), $parseTypes)){
-					$type = $parseTypes[ substr($key, 0, 1) ];
-					$key = substr($key, 1);
-				}
-				
-				$props = $this->loadProperties($key, $type);	// load default property set
-				foreach($propertySets as $propertySet) $props = array_merge($props, $this->loadProperties($key, $type, $propertySet));		// merge any additional property sets
-				$arguments = array_merge($props, $arguments);	// merge property sets with tag arguments
 				
 			}
 		}
