@@ -30,7 +30,7 @@ class xFrame {
 	function parseTemplate($template = 'default'){
 		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/default.html');
 		
-		$output = $this->parseTags($output);
+		$output = $this->parseTags($output, array('base_url' => '/manager/'));
 		
 		return $output;
 	}
