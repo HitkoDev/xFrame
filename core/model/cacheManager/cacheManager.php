@@ -14,8 +14,11 @@ class CacheManager {
 	function load($key){
 		$file = $this->getFile($key);
 		if($file){
-			$data = unserialize(file_get_contents($file));
-			if($data['time'] == 0 || $data['time'] > time()) return $data['data'];
+			$file = file_get_contents($file);
+			if($file){
+				$data = unserialize($file);
+				if($data['time'] == 0 || $data['time'] > time()) return $data['data'];
+			}
 		}
 		return null;
 	}
