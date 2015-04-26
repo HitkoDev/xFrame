@@ -16,10 +16,16 @@ class xFrame {
 	function parseTemplate($template = 'default'){
 		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/default.html');
 		
-		$countFields = preg_match_all('/\[\[([^\s\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*)(.*)\]\]/u', $output, $fields);
-		var_dump($fields);
+		$output = $this->parseTags($output);
 		
 		return $output;
+	}
+	
+	function parseTags($text){
+		$countTags = preg_match_all('/\[\[([^\s\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*)(.*)\]\]/u', $text, $tags);
+		var_dump($tags);
+		
+		return $text;
 	}
 	
 }
