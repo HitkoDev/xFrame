@@ -15,7 +15,7 @@ class CacheManager {
 		$file = getFile($key);
 		if($file){
 			$data = unserialize(file_get_contents($file));
-			if($data['time'] > time()) return $data['data'];
+			if($data['time'] == 0 || $data['time'] > time()) return $data['data'];
 		}
 		return null;
 	}

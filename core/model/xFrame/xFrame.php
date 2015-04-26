@@ -77,7 +77,13 @@ class xFrame {
 					
 					if($type == 'property'){
 						
-						
+						if(in_array($key, $properties)){
+							$value = $properties[$key];
+						} elseif(in_array($key, $this->context){
+							$value = $this->context[$key];
+						} else {
+							$value = '';
+						}
 						
 					} else {
 						
@@ -94,12 +100,15 @@ class xFrame {
 						
 						$props = $this->loadProperties($key, $type);	// load default property set
 						foreach($propertySets as $propertySet) $props = array_merge($props, $this->loadProperties($key, $type, $propertySet));		// merge any additional property sets
-						$arguments = array_merge($props, $arguments);	// merge property sets with tag arguments
+						$arguments = array_merge($properties, $props, $arguments);	// merge property sets with tag arguments
 						
 					}
 					
+					$cacheManager->store($tagHash, $value);
+					
 				}
 				
+				$text = str_replace($tag[0], $value, $text);
 				
 			}
 		}
