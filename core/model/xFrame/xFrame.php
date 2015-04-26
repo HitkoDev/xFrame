@@ -11,7 +11,7 @@ class xFrame {
 			if(count($val) > 1){
 				$key = $val[0];
 				unset($val[0]);
-				$qurey[$key] = $val;
+				$query[$key] = $val;
 			}
 		}
 		$this->query = $query;
