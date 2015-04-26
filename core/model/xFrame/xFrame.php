@@ -16,7 +16,7 @@ class xFrame {
 	function parseTemplate($template = 'default'){
 		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/default.html');
 		
-		$countFields = preg_match_all('/\[\[\+([[:alnum:]]*)(.*[\?&]([[:alnum:]]+)=`.+`)+.*\]\]/u', $output, $fields);
+		$countFields = preg_match_all('/\[\[(.*)([[:alnum:]]*)(.*[\?&]([[:alnum:]]+)=`.+`)+.*\]\]/u', $output, $fields);
 		var_dump($fields);
 		
 		return $output;
