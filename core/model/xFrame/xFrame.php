@@ -11,10 +11,15 @@ class xFrame {
 			if(count($val) > 1) $query[ array_shift($val) ] = $val;
 		}
 		$this->query = $query;
-		
-		include_once(CORE_PATH . '/model/cacheManager/cacheManager.php');
-		$this->cacheManager = new CacheManager();
-		
+		$this->getModel('cacheManager');
+	}
+	
+	function getModel($name){
+		if(!isset($this->$name)){
+			include_once(CORE_PATH . '/model/' . $name . '/'. $name . '.php');
+			$this->$name = new $name();
+		}
+		return $this->$name;
 	}
 	
 	function parseTemplate($template = 'default'){
