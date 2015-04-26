@@ -3,7 +3,7 @@
 class CacheManager {
 	
 	function store($key, $data, $time = 0){
-		$file = getFile($key);
+		$file = $this->getFile($key);
 		if($file){
 			file_put_contents($file, serialize(array('time' => time() + $time, 'data' => $data)));
 			return true;
@@ -12,7 +12,7 @@ class CacheManager {
 	}
 	
 	function load($key){
-		$file = getFile($key);
+		$file = $this->getFile($key);
 		if($file){
 			$data = unserialize(file_get_contents($file));
 			if($data['time'] == 0 || $data['time'] > time()) return $data['data'];
