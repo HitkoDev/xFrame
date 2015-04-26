@@ -72,7 +72,7 @@ class xFrame {
 					// determine tag type
 					$type = 'function';
 					var_dump(substr($key, 0, 1));
-					if(in_array(substr($key, 0, 1), $parseTypes)){
+					if(isset($parseTypes[ substr($key, 0, 1) ])){
 						$type = $parseTypes[ substr($key, 0, 1) ];
 						$key = substr($key, 1);
 					}
@@ -83,9 +83,9 @@ class xFrame {
 					
 					if($type == 'property'){
 						
-						if(in_array($key, $properties)){
+						if(isset($properties[$key])){
 							$value = $properties[$key];
-						} elseif(in_array($key, $this->context)){
+						} elseif(isset($this->context[$key])){
 							$value = $this->context[$key];
 						} else {
 							$value = '';
