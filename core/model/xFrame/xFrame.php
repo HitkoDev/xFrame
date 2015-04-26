@@ -22,7 +22,7 @@ class xFrame {
 	}
 	
 	function parseTags($text){
-		if(preg_match_all('/\[\[([^\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*).*\]\]/u', $text, $tags) > 0){
+		if(preg_match_all('/\[\[([^\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*).*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){
 			foreach($tags as $tag){
 				var_dump($tag);
 				$key = trim($tag[1]);
