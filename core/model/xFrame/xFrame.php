@@ -11,6 +11,7 @@ class xFrame {
 			if(count($val) > 1) $query[ array_shift($val) ] = $val;
 		}
 		$this->query = $query;
+		$this->getModel('database');
 		if($context) $this->loadContext($context);
 	}
 	
