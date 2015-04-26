@@ -22,8 +22,15 @@ class xFrame {
 	}
 	
 	function parseTags($text){
-		$countTags = preg_match_all('/\[\[([^\s\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*)(.*)\]\]/u', $text, $tags);
-		var_dump($tags);
+		while(preg_match_all('/\[\[([^\?&]+)((.*?[\?&][[:alnum:]]+=`[^`]*`)*).*\]\]/u', $text, $tags) > 0){
+			foreach($tags as $tag){
+				$key = trim($tag[1]);
+				$arguments = array();
+				if(preg_match_all('/[\?&][[:alnum:]]+=`[^`]*`/u', trim($tag[2]), $args)){
+					var_dump($args);
+				}
+			}
+		}
 		
 		return $text;
 	}
