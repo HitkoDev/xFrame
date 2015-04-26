@@ -62,7 +62,7 @@ class xFrame {
 				}
 				
 				// generate tag hash
-				$arguments = ksort($arguments);
+				ksort($arguments);
 				$tagHash = md5($key . '_' . serialize($arguments));
 				
 				//$value = $cacheManager->load($tagHash);
@@ -71,6 +71,7 @@ class xFrame {
 				
 					// determine tag type
 					$type = 'function';
+					var_dump(substr($key, 0, 1));
 					if(in_array(substr($key, 0, 1), $parseTypes)){
 						$type = $parseTypes[ substr($key, 0, 1) ];
 						$key = substr($key, 1);
