@@ -6,4 +6,4 @@ if(!defined('ASSETS_PATH')) define('ASSETS_PATH', realpath(dirname(__file__) . '
 include_once(CORE_PATH . '/config.php');
 include_once(CORE_PATH . '/init.php');
 
-var_dump($xFrame);
+echo $xFrame->parseTemplate();
