@@ -75,6 +75,10 @@ class xFrame {
 						$type = $parseTypes[ substr($key, 0, 1) ];
 						$key = substr($key, 1);
 					}
+						
+					// extract property sets from key
+					$propertySets = array_filter(array_map('trim', explode(':', $key)));
+					$key = array_shift($propertySets);
 					
 					if($type == 'property'){
 						
@@ -87,10 +91,6 @@ class xFrame {
 						}
 						
 					} else {
-						
-						// extract property sets from key
-						$propertySets = array_filter(array_map('trim', explode(':', $key)));
-						$key = array_shift($propertySets);
 						
 						// check cache
 						$uncached = substr($key, 0, 1) == '!' ? true : false;
