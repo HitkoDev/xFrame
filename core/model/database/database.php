@@ -3,7 +3,7 @@
 class Database extends MongoClient {
 	
 	function __construct(){
-		parent::construct(MONGO_STRING);
+		parent::__construct(MONGO_STRING);
 	}
 	
 }
