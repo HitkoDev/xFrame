@@ -79,7 +79,7 @@ class xFrame {
 						
 						if(in_array($key, $properties)){
 							$value = $properties[$key];
-						} elseif(in_array($key, $this->context){
+						} elseif(in_array($key, $this->context)){
 							$value = $this->context[$key];
 						} else {
 							$value = '';
