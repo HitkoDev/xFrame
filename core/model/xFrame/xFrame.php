@@ -2,7 +2,7 @@
 
 class xFrame {
 	
-	function __construct($context == ''){
+	function __construct($context = ''){
 		$GLOBALS['xFrame'] = $this;
 		$query = array();
 		if($_REQUEST['req']) $req = array_map('trim', explode('/', $_REQUEST['req']));
