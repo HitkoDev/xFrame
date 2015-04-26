@@ -2,7 +2,7 @@
 
 class xFrame {
 	
-	__construct(){
+	function __construct(){
 		$GLOBALS['xFrame'] = $this;
 	}
 	
