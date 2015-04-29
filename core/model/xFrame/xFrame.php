@@ -5,17 +5,47 @@ class xFrame {
 	function __construct($context = ''){
 		$GLOBALS['xFrame'] = $this;
 		
+		ob_start();
+		
 		$this->getModel('database');
 		$this->getModel('session');
+		if($context) $this->loadContext($context);
 		
+		// parse query string (query format: /value1/value2[0]:value2[1]:value2[2]/value3 ..., API format: /ignored/name:value[0]:value[1]/ignored ...)
 		$query = array();
+		$apiQuery = array();
 		if($_REQUEST['req']) $req = array_map('trim', explode('/', $_REQUEST['req']));
 		foreach($req as $val){
 			$val = array_filter(array_map('trim', explode(':', $val)));
-			if(count($val) > 1) $query[ array_shift($val) ] = $val;
+			if(count($val) > 1){
+				$query[] = $val;
+				if(count($val) > 1) $apiQuery[ array_shift($val) ] = $val;
+			} elseif(count($val) > 0){
+				$query[] = $val[0];
+			}
 		}
 		$this->query = $query;
-		if($context) $this->loadContext($context);
+		$this->apiQuery = $apiQuery;
+		
+		if(count($this->query) > 0){
+			switch($this->query[0]){
+				
+				case 'execute': // run requested actions (such as user->login()) and return result in JSON format
+					$return = array();
+					for($i = 0; $i < count($this->apiQuery['model']) && $i < count($this->apiQuery['action']); $i++){
+						$model = $this->getModel($this->apiQuery['model'][$i]);
+						$action = $this->apiQuery['action'][$i];
+						$return[$i] = $model && method_exists($model, $action) ? $model->$action() : false;
+					}
+					while(ob_end_clean());
+					header('Content-Type: application/json');
+					echo json_encode($return, JSON_UNESCAPED_UNICODE);
+					exit();		// prevent additional actions
+					
+				default :
+					
+			}
+		}
 	}
 	
 	function loadContext($name){
@@ -24,8 +54,11 @@ class xFrame {
 	
 	function getModel($name){
 		if(!isset($this->$name)){
-			include_once(CORE_PATH . '/model/' . $name . '/'. $name . '.php');
-			$this->$name = new $name();
+			if(include_once(CORE_PATH . '/model/' . $name . '/'. $name . '.php')){
+				$this->$name = new $name();
+			} else {
+				return false;
+			}
 		}
 		return $this->$name;
 	}
