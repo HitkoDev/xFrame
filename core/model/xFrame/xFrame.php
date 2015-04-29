@@ -11,7 +11,9 @@ class xFrame {
 		$this->getModel('session');
 		if($context) $this->loadContext($context);
 		
-		// parse query string (query format: /value1/value2[0]:value2[1]:value2[2]/value3 ..., API format: /ignored/name:value[0]:value[1]/ignored ...)
+		// parse query string 
+		// query format: /value1/value2[0]:value2[1]:value2[2]/value3 ... 
+		// API format: /ignored/name1:value1[0]:value1[1]/ignored/name2:value2[0]:value2[1] ...
 		$query = array();
 		$apiQuery = array();
 		if($_REQUEST['req']) $req = array_map('trim', explode('/', $_REQUEST['req']));
@@ -37,7 +39,7 @@ class xFrame {
 						$action = $this->apiQuery['action'][$i];
 						$return[$i] = $model && method_exists($model, $action) ? $model->$action() : false;
 					}
-					while(ob_end_clean());
+					while(ob_get_level() > 0) ob_end_clean();
 					header('Content-Type: application/json');
 					echo json_encode($return, JSON_UNESCAPED_UNICODE);
 					exit();		// prevent additional actions
@@ -151,6 +153,22 @@ class xFrame {
 		}
 		
 		return $text;
+	}
+	
+	function loadResource($conditions){
+		$database = $this->database->getTable('resource');
+		$resource = $database->find($conditions);
+		if($resource->hasNext()) return $resource->getNext();
+		return false;
+	}
+	
+	function saveResource($resource){
+		$database = $this->database->getTable('resource');
+		if($resource['_id']){
+			return $database->update(array('_id' => $resource['_id']), $resource);
+		} else {
+			return $database->insert($resource);
+		}
 	}
 	
 	function loadProperties($id, $type = 'resource', $key = 'default'){
