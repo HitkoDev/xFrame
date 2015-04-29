@@ -4,6 +4,10 @@ class xFrame {
 	
 	function __construct($context = ''){
 		$GLOBALS['xFrame'] = $this;
+		
+		$this->getModel('database');
+		$this->getModel('session');
+		
 		$query = array();
 		if($_REQUEST['req']) $req = array_map('trim', explode('/', $_REQUEST['req']));
 		foreach($req as $val){
@@ -11,7 +15,6 @@ class xFrame {
 			if(count($val) > 1) $query[ array_shift($val) ] = $val;
 		}
 		$this->query = $query;
-		$this->getModel('database');
 		if($context) $this->loadContext($context);
 	}
 	

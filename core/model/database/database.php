@@ -1,9 +1,14 @@
 <?php
 
-class Database extends MongoClient {
+class Database extends MongoDB {
 	
 	function __construct(){
-		parent::__construct(MONGO_STRING);
+		$client = new MongoClient(MONGO_STRING);
+		parent::__construct($client, MONGO_DB);
+	}
+	
+	function getTable($name){
+		return new MongoCollection($this, MONGO_PREFIX . $name);
 	}
 	
 }
