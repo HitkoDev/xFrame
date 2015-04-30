@@ -2,9 +2,10 @@
 
 class xFrame {
 	
+	private $apiQuery;
+	private $context;
 	private $models = array();
 	private $query;
-	private $apiQuery;
 	private $user;
 	
 	function __construct($context = ''){
@@ -127,10 +128,10 @@ class xFrame {
 		return $this->models[$name];
 	}
 	
-	function parseTemplate($template = 'default'){
-		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/default.html');
+	function parseTemplate($template = 'default', $element = 'default', $properties = array()){
+		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/' . $element . '.html');
 		
-		$output = $this->parseTags($output);
+		$output = $this->parseTags($output, $properties);
 		
 		return $output;
 	}
