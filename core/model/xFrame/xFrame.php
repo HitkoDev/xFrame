@@ -2,6 +2,11 @@
 
 class xFrame {
 	
+	private $models = array();
+	private $query;
+	private $apiQuery;
+	private $user;
+	
 	function __construct($context = ''){
 		$GLOBALS['xFrame'] = $this;
 		
@@ -9,6 +14,12 @@ class xFrame {
 		
 		$this->getModel('database');
 		$this->getModel('session');
+		
+		// load user if it's attached to this session
+		$this->user = $this->loadResource('access', array(
+			'_id' => $this->getSessionData('user'),
+		));
+		
 		if($context) $this->loadContext($context);
 		
 		// parse query string 
@@ -16,38 +27,76 @@ class xFrame {
 		// API format: /ignored/name1:value1[0]:value1[1]/ignored/name2:value2[0]:value2[1] ...
 		$query = array();
 		$apiQuery = array();
-		if($_REQUEST['req']) $req = array_map('trim', explode('/', $_REQUEST['req']));
-		foreach($req as $val){
-			$val = array_filter(array_map('trim', explode(':', $val)));
-			if(count($val) > 1){
-				$query[] = $val;
-				if(count($val) > 1) $apiQuery[ array_shift($val) ] = $val;
-			} elseif(count($val) > 0){
-				$query[] = $val[0];
+		if(isset($_REQUEST['req'])){
+			$req = array_map('trim', explode('/', $_REQUEST['req']));
+			foreach($req as $val){
+				$val = array_filter(array_map('trim', explode(':', $val)));
+				if(count($val) > 1){
+					$query[] = $val;
+					if(count($val) > 1) $apiQuery[ array_shift($val) ] = $val;
+				} elseif(count($val) > 0){
+					$query[] = $val[0];
+				}
 			}
 		}
 		$this->query = $query;
 		$this->apiQuery = $apiQuery;
 		
-		if(count($this->query) > 0){
-			switch($this->query[0]){
+		switch($this->getQuerySegment(0)){
+			
+			case 'execute': 
+				$this->executeAPICall();
+				break;
 				
-				case 'execute': // run requested actions (such as user->login()) and return result in JSON format
-					$return = array();
-					for($i = 0; $i < count($this->apiQuery['model']) && $i < count($this->apiQuery['action']); $i++){
-						$model = $this->getModel($this->apiQuery['model'][$i]);
-						$action = $this->apiQuery['action'][$i];
-						$return[$i] = $model && method_exists($model, $action) ? $model->$action() : false;
-					}
-					while(ob_get_level() > 0) ob_end_clean();
-					header('Content-Type: application/json');
-					echo json_encode($return, JSON_UNESCAPED_UNICODE);
-					exit();		// prevent additional actions
-					
-				default :
-					
+			default :
+				
+		}
+	}
+	
+	// run requested model->action() (such as user->login()) and print results in JSON array
+	// this is an endpoint function, calling it will end execution
+	private function executeAPICall(){
+		$results = $this->executeModelAction($this->getAPIParamter('model'), $this->getAPIParamter('action'));
+		while(ob_get_level() > 0) ob_end_clean();
+		header('Content-Type: application/json');
+		echo json_encode($results, JSON_UNESCAPED_UNICODE);
+		exit();		// prevent additional actions
+	}
+	
+	function isLoggedIn(){
+		return $this->user != false;
+	}
+	
+	function executeModelAction($models = array(), $actions = array()){
+		$return = array();
+		if($models && $actions){
+			for($i = 0; $i < count($models) && $i < count($actions); $i++){
+				$model = $this->getModel($models[$i]);
+				$action = $actions[$i];
+				$return[$i] = $model && method_exists($model, $action) ? $model->$action() : false;
 			}
 		}
+		return $return;
+	}
+	
+	// access query data
+	function getQuerySegment($index){
+		if(isset($this->query[$index])) return $this->query[$index];
+		return false;
+	}
+	
+	// access API parameters
+	function getAPIParamter($name){
+		if(isset($this->apiQuery[$name])) return $this->apiQuery[$name];
+		return false;
+	}
+	
+	function getSessionData($name){
+		return $this->getModel('session')->get($name);
+	}
+	
+	function setSessionData($name, $value){
+		return $this->getModel('session')->set($name, $value);
 	}
 	
 	function loadContext($name){
@@ -55,14 +104,15 @@ class xFrame {
 	}
 	
 	function getModel($name){
-		if(!isset($this->$name)){
-			if(include_once(CORE_PATH . '/model/' . $name . '/'. $name . '.php')){
-				$this->$name = new $name();
+		if(!isset($this->models[$name])){
+			include_once(CORE_PATH . '/model/' . $name . '/'. $name . '.php');
+			if(class_exists($name)){
+				$this->models[$name] = new $name();
 			} else {
 				return false;
 			}
 		}
-		return $this->$name;
+		return $this->models[$name];
 	}
 	
 	function parseTemplate($template = 'default'){
@@ -155,15 +205,29 @@ class xFrame {
 		return $text;
 	}
 	
-	function loadResource($conditions){
-		$database = $this->database->getTable('resource');
+	function getDBTable($name){
+		return $this->getModel('database')->getTable($name);
+	}
+	
+	function loadResource($class, $conditions){
+		$database = $this->getDBTable($class);
 		$resource = $database->find($conditions);
-		if($resource->hasNext()) return $resource->getNext();
+		if($resource->hasNext()){
+			return $this->getClass($class, $resource->getNext());
+		}
 		return false;
 	}
 	
-	function saveResource($resource){
-		$database = $this->database->getTable('resource');
+	function getClass($class, $data){
+		include_once(CORE_PATH . '/class/' . $class . '/'. $class . '.php');
+		if(class_exists($class)){
+			return new $class($data);
+		}
+		return false;
+	}
+	
+	function saveResource($class, $resource){
+		$database = $this->getDBTable($class);
 		if($resource['_id']){
 			return $database->update(array('_id' => $resource['_id']), $resource);
 		} else {

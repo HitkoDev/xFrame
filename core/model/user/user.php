@@ -4,6 +4,10 @@ class User {
 	
 	function login(){
 		global $xFrame;
+		if($xFrame->isLoggedIn()) return array(
+			'success' => false,
+			'message' => 'Someone is already logged in',
+		);
 		$user = $_POST['username'];
 		$pass = $_POST['password'];
 		if(!$user) return array(
@@ -14,7 +18,7 @@ class User {
 			'success' => false,
 			'message' => 'Missing password',
 		);
-		$user = $xFrame->loadResource(array(
+		$user = $xFrame->loadResource('access', array(
 			'identifier' => $user,
 			'type' => 'user',
 		));
@@ -22,11 +26,11 @@ class User {
 			'success' => false,
 			'message' => 'No such user',
 		);
-		if(!password_verify($pass, $user['data']['password'])) return array(
+		if(!password_verify($pass, $user->data['password'])) return array(
 			'success' => false,
 			'message' => 'Wrong password',
 		);
-		$xFrame->session->set('user', $user['_id']);
+		$xFrame->setSessionData('user', $user->_id);
 		return array(
 			'success' => true,
 			'message' => 'Successfully logged in',
@@ -35,7 +39,11 @@ class User {
 	
 	function logout(){
 		global $xFrame;
-		$xFrame->session->set('user', '');
+		if(!$xFrame->isLoggedIn()) return array(
+			'success' => false,
+			'message' => 'No one is logged in',
+		);
+		$xFrame->setSessionData('user', '');
 		return array(
 			'success' => true,
 			'message' => 'Successfully logged out',

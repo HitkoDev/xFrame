@@ -10,7 +10,7 @@ class Session {
 		$this->id = session_id();
 		
 		// get session storage
-		$this->database = $xFrame->database->getTable('session');
+		$this->database = $xFrame->getDBTable('session');
 		$res = $this->database->find(array(
 			'data.id' => $this->id
 		));
@@ -38,15 +38,6 @@ class Session {
 				'data' => $this->data,
 			);
 			$this->database->insert($this->resource);
-		}
-		
-		// load user if it's attached to this session
-		$this->user = false;
-		if($this->resource['data']['user']){
-			$user = $xFrame->loadResource(array(
-				'_id' => $this->resource['data']['user'],
-			));
-			if($user) $this->user = $user;
 		}
 	}
 	
