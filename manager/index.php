@@ -7,5 +7,3 @@ include_once(CORE_PATH . '/config.php');
 require_once(CORE_PATH . '/model/xFrame/xFrame.php');
 
 $xFrame = new xFrame('manager');
-
-echo $xFrame->parseTemplate();

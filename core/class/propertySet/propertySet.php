@@ -22,6 +22,10 @@ class PropertySet {
 		}
 	}
 	
+	function hasProperty($name){
+		return isset($this->properties[$name]);
+	}
+	
 	function getProperty($name){
 		if(isset($this->properties[$name])) return $this->properties[$name];
 		return false;

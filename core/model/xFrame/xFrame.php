@@ -105,7 +105,14 @@ class xFrame {
 	}
 	
 	function loadContext($name){
-		$this->context = $this->loadProperties($name, 'context');
+		$context = $this->loadResource('propertySet', array(
+			'type' => 'context',
+			'identifier' => $name,
+		));
+		if($context){
+			$this->context = $context;
+			echo $this->parseTemplate($this->context->getProperty('template'));
+		}
 	}
 	
 	function getModel($name){
@@ -123,7 +130,7 @@ class xFrame {
 	function parseTemplate($template = 'default'){
 		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/default.html');
 		
-		$output = $this->parseTags($output, array('base_url' => '/manager/'));
+		$output = $this->parseTags($output);
 		
 		return $output;
 	}
@@ -184,8 +191,8 @@ class xFrame {
 						
 						if(isset($properties[$key])){
 							$value = $properties[$key];
-						} elseif(isset($this->context[$key])){
-							$value = $this->context[$key];
+						} elseif($this->context->hasProperty($key)){
+							$value = $this->context->getProperty($key);
 						} else {
 							$value = '';
 						}
