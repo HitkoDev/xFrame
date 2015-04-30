@@ -19,6 +19,11 @@ class xFrame {
 		$this->user = $this->loadResource('access', array(
 			'_id' => $this->getSessionData('user'),
 		));
+		// otherwise load default user
+		if(!$this->user) $this->user = $this->loadResource('access', array(
+			'identifier' => 'default',
+			'type' => 'defaultUser',
+		));
 		
 		if($context) $this->loadContext($context);
 		
@@ -64,7 +69,7 @@ class xFrame {
 	}
 	
 	function isLoggedIn(){
-		return $this->user != false;
+		return $this->user->type == 'user';
 	}
 	
 	function executeModelAction($models = array(), $actions = array()){
