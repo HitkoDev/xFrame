@@ -26,7 +26,7 @@ class xFrame {
 			'type' => 'defaultUser',
 		));
 		
-		if($context) $this->loadContext($context);
+		if($context) $this->context = $this->loadContext($context);
 		
 		// parse query string 
 		// query format: /value1/value2[0]:value2[1]:value2[2]/value3 ... 
@@ -55,7 +55,8 @@ class xFrame {
 				break;
 				
 			default :
-				
+				if($this->context) echo $this->parse($this->context->getProperty('template'));
+				break;
 		}
 	}
 	
@@ -110,10 +111,7 @@ class xFrame {
 			'type' => 'context',
 			'identifier' => $name,
 		));
-		if($context){
-			$this->context = $context;
-			echo $this->parseTemplate($this->context->getProperty('template'));
-		}
+		return $context;
 	}
 	
 	function getModel($name){
@@ -128,27 +126,45 @@ class xFrame {
 		return $this->models[$name];
 	}
 	
-	function parseTemplate($template = 'default', $element = 'default', $properties = array()){
-		$output = file_get_contents(ASSETS_PATH . '/templates/' . $template . '/' . $element . '.html');
-		
-		$output = $this->parseTags($output, $properties);
-		
-		return $output;
+	function parse($item, $properties = array(), $propertySets = array()){
+		$item = array_map('trim', explode('.', $item, 2));
+		if(count($item) > 0){
+			if(count($item) == 1 || $item[0] == 'property'){		// item without a type is interpreted as a property
+				if(count($item) == 2) $item[0] = $item[1];
+				if(isset($properties[ $item[0] ])) return $properties[ $item[0] ];
+				if($this->context) return $this->context->getProperty($item[0], '');
+			} else {
+				$item = $this->loadResource('parsable', array(
+					'type' => $item[0],
+					'identifier' => $item[1],
+				));
+				if($item) return $item->parse($properties, $propertySets);
+			}
+		}
+		return '';
 	}
 	
-	function parseTags($text, $properties = array()){
-		
-		$cachable = true;
-		
-		// todo: obtain parseTypes from available tag types
-		$parseTypes = array(
-			'+' => 'field',
-			'$' => 'property',
-			'#' => 'text',
-		);
+	function parseText($text, $properties = array()){
 		
 		$cacheManager = $this->getModel('cacheManager');
-				
+		ksort($properties);
+		$hash = md5($text . '_' . serialize($properties));
+		$value = $cacheManager->load($hash);
+		
+		if(!$value){
+			// only parse cachable tags and cache the output
+			$value = $this->parseTags($text, $properties, true);
+			$cacheManager->store($hash, $value);
+		}
+		
+		// parse any remaining tags
+		$value = $this->parseTags($value, $properties, false);
+		
+		return $value;
+	}
+	
+	function parseTags($text, $properties = array(), $cachedOnly = false){
+		$cacheManager = $this->getModel('cacheManager');
 		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){	// extract tags
 			foreach($tags as $tag){
 				
@@ -161,52 +177,31 @@ class xFrame {
 						$arguments[trim($arg[1])] = trim($arg[2]);
 					}
 				}
+						
+				// check cache
+				$cachable = true;
+				if(substr($key, 0, 1) == '!'){
+					$key = substr($key, 1);
+					$cachable = false;
+					if($cachedOnly) continue;	// skip uncached tags when cachedOnly
+				}
 				
 				// generate tag hash
 				ksort($arguments);
 				$tagHash = md5($key . '_' . serialize($arguments));
 				
-				$value = $cacheManager->load($tagHash);
+				$value = '';
+				if($cachable) $value = $cacheManager->load($tagHash);
 				
 				if(!$value){
-				
-					// determine tag type
-					$type = 'function';
-					if(isset($parseTypes[ substr($key, 0, 1) ])){
-						$type = $parseTypes[ substr($key, 0, 1) ];
-						$key = substr($key, 1);
-					}
 						
 					// extract property sets from key
 					$propertySets = array_filter(array_map('trim', explode(':', $key)));
 					$key = array_shift($propertySets);
-						
-					// check cache
-					$uncached = substr($key, 0, 1) == '!' ? true : false;
-					if($uncached){
-						$key = substr($key, 1);
-						$cachable = false;
-					}
 					
-					if($type == 'property'){
-						
-						if(isset($properties[$key])){
-							$value = $properties[$key];
-						} elseif($this->context->hasProperty($key)){
-							$value = $this->context->getProperty($key);
-						} else {
-							$value = '';
-						}
-						
-					} else {
-						
-						$props = $this->loadProperties($key, $type);	// load default property set
-						foreach($propertySets as $propertySet) $props = array_merge($props, $this->loadProperties($key, $type, $propertySet));		// merge any additional property sets
-						$arguments = array_merge($properties, $props, $arguments);	// merge property sets with tag arguments
-						
-					}
+					$value = $this->parse($key, array_merge($properties, $arguments), $propertySets);
 					
-					$cacheManager->store($tagHash, $value);
+					if($cachable) $cacheManager->store($tagHash, $value);
 					
 				}
 				
@@ -214,7 +209,6 @@ class xFrame {
 				
 			}
 		}
-		
 		return $text;
 	}
 	

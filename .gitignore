@@ -3,3 +3,4 @@ core/config.php
 rockmongo
 git_pull.php
 core/cache
+encoder.php

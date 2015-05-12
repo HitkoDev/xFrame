@@ -26,9 +26,9 @@ class PropertySet {
 		return isset($this->properties[$name]);
 	}
 	
-	function getProperty($name){
+	function getProperty($name, $default = false){
 		if(isset($this->properties[$name])) return $this->properties[$name];
-		return false;
+		return $default;
 	}
 	
 	public function __get($name){
