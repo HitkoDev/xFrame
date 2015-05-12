@@ -23,7 +23,7 @@ class CacheManager {
 		return null;
 	}
 	
-	private function getFile($key){
+	function getFile($key){
 		$key = md5($key);
 		if(is_dir(CORE_PATH . '/cache') || mkdir(CORE_PATH . '/cache')){
 			$dir = substr($key, 0, 16);
