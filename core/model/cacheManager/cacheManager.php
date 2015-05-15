@@ -4,8 +4,7 @@ class CacheManager {
 	
 	function store($key, $data, $time = 0){
 		$file = $this->getFile($key);
-		if($file){
-			file_put_contents($file, serialize(array('time' => time() + $time, 'data' => $data)));
+		if($file && file_put_contents($file, serialize(array('time' => time() + $time, 'data' => $data)))){
 			return true;
 		}
 		return false;
@@ -13,7 +12,7 @@ class CacheManager {
 	
 	function load($key){
 		$file = $this->getFile($key);
-		if($file){
+		if($file && is_file($file)){
 			$file = file_get_contents($file);
 			if($file){
 				$data = unserialize($file);
@@ -29,9 +28,7 @@ class CacheManager {
 			$dir = substr($key, 0, 16);
 			$file = substr($key, 16);
 			if(is_dir(CORE_PATH . '/cache/' . $dir) || mkdir(CORE_PATH . '/cache/' . $dir)){
-				if(is_file(CORE_PATH . '/cache/' . $dir . '/' . $file) || file_put_contents(CORE_PATH . '/cache/' . $dir . '/' . $file, '')){
-					return CORE_PATH . '/cache/' . $dir . '/' . $file;
-				}
+				return CORE_PATH . '/cache/' . $dir . '/' . $file;
 			}
 		}
 		return false;

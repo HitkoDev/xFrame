@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="31px" height="31px" viewBox="0 0 31 31" enable-background="new 0 0 31 31" xml:space="preserve">
+	<style>
+		.spinner {
+			-webkit-animation: spin 0.8s steps(8, end) infinite;
+					animation: spin 0.8s steps(8, end) infinite;
+			-webkit-transform-origin: center;
+				-ms-transform-origin: center;
+					transform-origin: center;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		@-webkit-keyframes spin {
+			to {
+				-webkit-transform: rotate(360deg) translate3d(0, 0, 0);
+			}
+		}
+	</style>
+	<defs>
+		<path id="arc" opacity="0.85" d="M 30.991933384829668 16 A 15.5 15.5 0 0 1 26.808004540696594 26.100897759510048 L 22.561757323092642 21.854650541906096 A 9.5 9.5 0 0 0 24.986832980505138 16 Z"/>
+	</defs>
+	<g class="spinner">
+		<use opacity="0.4" x="0" y="0" transform="rotate(0, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.4" x="0" y="0" transform="rotate(45, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.4" x="0" y="0" transform="rotate(90, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.4" x="0" y="0" transform="rotate(135, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.4" x="0" y="0" transform="rotate(180, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.4" x="0" y="0" transform="rotate(225, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.85" x="0" y="0" transform="rotate(270, 15.5, 15.5)" xlink:href="#arc"/>
+		<use opacity="0.4" x="0" y="0" transform="rotate(315, 15.5, 15.5)" xlink:href="#arc"/>
+	</g>
+</svg>

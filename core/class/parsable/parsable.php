@@ -24,11 +24,25 @@ class Parsable {
 		if($this->object['executable']){
 			$function = $this->getName();
 			$this->includeExecutable();
-			if(function_exists($function)) return $xFrame->parseText(call_user_func($function, $this->getProperties($properties, $propertySets)));
-			return '';
+			$output = '';
+			if(function_exists($function)) $output = call_user_func($function, $this->getProperties($properties, $propertySets));
+			if(is_string($output)) return $xFrame->parseText($output);
+			return $output;
 		}
 		
 		return $xFrame->parseText($this->object['content'], $this->getProperties($properties, $propertySets));
+	}
+	
+	public function getValue($name){
+		$path = array_map('trim', explode('.', $name));
+		$array = $this->object;
+		$i = 0;
+		while($i < count($path) - 1 && isset($array[$path[$i]])){
+			$array = $array[$path[$i]];
+			$i++;
+		}
+		if(isset($array[$path[$i]])) return $array[$path[$i]];
+		return null;
 	}
 	
 	private function getProperties($properties = array(), $propertySets = array()){
@@ -40,7 +54,7 @@ class Parsable {
 	}
 	
 	private function getName(){
-		return md5($this->object['type'] . '_' . $this->object['identifier']);
+		return 'func_' . md5($this->object['type'] . '_' . $this->object['identifier']);
 	}
 	
 	private function includeExecutable(){
@@ -48,14 +62,11 @@ class Parsable {
 		
 		$cacheManager = $xFrame->getModel('cacheManager');
 		$file = $cacheManager->getFile($this->object['_id']);
-		if($file){
-			if(file_get_contents($file)){
-				include_once($file);
-			} else {
-				file_put_contents($file, '<?php function ' . $this->getName() . '($properties = array()){' . $this->object['content'] . '}');
-				include_once($file);
-			}
+		if(is_file($file)){
+			return include_once($file);
 		}
+		file_put_contents($file, '<?php function ' . $this->getName() . '($properties = array()){global $xFrame;' . $this->object['content'] . '}');
+		return include_once($file);
 	}
 	
 }

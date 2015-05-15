@@ -231,12 +231,28 @@ class xFrame {
 		return false;
 	}
 	
+	function loadResources($class, $conditions, $fields = array(), $sort = array()){
+		$database = $this->getDBTable($class);
+		$resource = $database->find($conditions, $fields);
+		$resource->sort($sort);
+		$resources = array();
+		while($resource->hasNext()){
+			$res = $this->getClass($class, $resource->getNext());
+			if($res) $resources[] = $res;
+		}
+		return $resources;
+	}
+	
 	function getClass($class, $data){
 		include_once(CORE_PATH . '/class/' . $class . '/'. $class . '.php');
 		if(class_exists($class)){
 			return new $class($data);
 		}
 		return false;
+	}
+	
+	function getClassDefinitions(){
+		
 	}
 	
 	function saveResource($class, $resource){
