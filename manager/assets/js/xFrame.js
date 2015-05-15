@@ -65,4 +65,23 @@ var loginError = function(data, status){
 var toggleTab = function(tab){
 	$(tab).parent().find('.active').toggleClass('active');
 	$(tab).toggleClass('active');
-}
+};
+
+var initEditor = function(func){
+	if(typeof tinymce == 'undefined'){
+		$.getScript('assets/tinymce/tinymce.min.js', function(script, status, el){
+			tinymce.baseURL = 'assets/tinymce/';
+			func();
+		});
+	} else {
+		func();
+	}
+};
+
+var toggleEditor = function(editor, button){
+	if($(button).is(':checked')){
+		tinymce.get(editor).show();
+	} else {
+		tinymce.get(editor).hide();
+	}
+};
