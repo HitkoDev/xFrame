@@ -18,7 +18,7 @@ class Parser {
 			} else {
 				$propertySets[] = $_POST['propertySet'];
 			}
-			return $xFrame->parse($item, array(), $propertySets);
+			return $xFrame->parse($item, array(), $propertySets, true);
 		}
 		return array(
 			'success' => $success,

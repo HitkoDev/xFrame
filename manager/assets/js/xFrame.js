@@ -7,7 +7,11 @@ var fetch = function(i, item, target){
 	var url = $(item).attr('data-url');		// target url
 	var form = $(item).attr('data-form');	// form to be appended
 	var data = '';
-	if(form) data = $(form).serialize();	// if form is specified, fetch input
+	if(form){
+		data = $(form).serialize();	// if form is specified, fetch input
+		var name = $(item).attr('name');
+		if(data == '') data = name + '=';
+	}
 	$(target).toggleClass('xFrame-loadable', true);
 	$.ajax(url, {
 		data: data,							// append form data
@@ -86,9 +90,9 @@ var toggleEditor = function(editor, button){
 };
 
 var setEditorUpdate = function(data, status){
-	$('#managerEditor input, #managerEditor select, #managerEditor textarea').each(function(i, el){
+	$('#manager-editor input, #manager-editor select, #manager-editor textarea').each(function(i, el){
 		var name = $(el).attr('name');
-		$(el).attr('data-form', "#managerEditor [name='" + name + "']");
+		$(el).attr('data-form', "#manager-editor [name='" + name + "']");
 		$(el).attr('data-url', "execute/model:editor/action:updateFields/id:" + name.split('_')[2]);
 		$(el).attr('data-success', 'fieldError');
 		$(el).on('change', function(){

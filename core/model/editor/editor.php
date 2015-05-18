@@ -40,6 +40,8 @@ class Editor {
 					}
 				}
 			}
+		} else {
+			$this->newElement();
 		}
 		if($this->loaded){
 			$this->loaded = false;
@@ -94,6 +96,48 @@ class Editor {
 		return false;
 	}
 	
+	function newElement(){
+		global $xFrame;
+		
+		$class = $xFrame->getAPIParamter('class');
+		$type = $xFrame->getAPIParamter('type');
+		if($class && $type){
+			$class = $class[0];
+			$type = $type[0];
+			$id = new MongoId();
+			$this->draft = array(
+				'class' => $class,
+				'type' => $type,
+				'targetID' => $id,
+				'new' => true,
+			);
+			$drafts = $xFrame->getDBTable('draft');
+			$drafts->insert($this->draft);
+			$this->loaded = true;
+		}
+	}
+	
+	function setField($tab, $field, $value){
+		if($tab == 'main'){
+			if(!$value) $value = $this->editor[$tab][$field]['default'];
+			if($this->editor[$tab][$field]['required'] && !$value){
+				return false;
+			}
+			$this->draft[$field] = $value;
+			return true;
+		}
+		return true;
+	}
+	
+	function saveDraft(){
+		global $xFrame;
+		
+		$drafts = $xFrame->getDBTable('draft');
+		$drafts->update(array(
+			'_id' => $this->draft['_id'],
+		), $this->draft);
+	}
+	
 	function getID(){
 		return (string) $this->draft['targetID'];
 	}
@@ -121,22 +165,24 @@ class Editor {
 				$success = false;
 				continue;
 			}
-			if($tab == 'main'){
-				$this->draft[$field] = $value;
+			$resp = $this->setField($tab, $field, $value);
+			if($this->setField($tab, $field, $value)){
 				$message[$key] = array(
 					'status' => 'ok',
 				);
+			} else {
+				$message[$key] = array(
+					'status' => 'err',
+					'desc' => 'missing',
+				);
+				$success = false;
+				continue;
 			}
 		}
-		$drafts = $xFrame->getDBTable('draft');
-		$drafts->update(array(
-			'_id' => $this->draft['_id'],
-		), $this->draft);
+		$this->saveDraft();
 		return array(
 			'success' => $success,
-			'message' => array(
-				
-			),
+			'message' => $message,
 		);
 	}
 	
@@ -147,16 +193,23 @@ class Editor {
 		unset($this->draft['class']);
 		$id = $this->draft['targetID'];
 		unset($this->draft['targetID']);
+		$new = $this->draft['new'];
+		unset($this->draft['new']);
 		$this->draft['_id'] = $id;
 		
 		$table = $xFrame->getDBTable($class);
-		$table->update(array(
-			'_id' => $this->draft['_id'],
-		), $this->draft);
+		if($new){
+			$table->insert($this->draft);
+		} else {
+			$table->update(array(
+				'_id' => $this->draft['_id'],
+			), $this->draft);
+		}
 		$drafts = $xFrame->getDBTable('draft');
 		$drafts->update(array(
 			'_id' => $this->draft['_id'],
 		), $this->draft);
+		$this->init();
 	}
 	
 	function discard($init = true){
@@ -168,6 +221,26 @@ class Editor {
 		if($init){
 			$this->init();
 			return $xFrame->parse('function.Editor');
+		}
+	}
+	
+	function delete(){
+		global $xFrame;
+		$this->discard(false);
+		$class = $this->draft['class'];
+		unset($this->draft['class']);
+		$id = $this->draft['targetID'];
+		unset($this->draft['targetID']);
+		$new = $this->draft['new'];
+		unset($this->draft['new']);
+		
+		if($new){
+			
+		} else {
+			$table = $xFrame->getDBTable($class);
+			$table->remove(array(
+				'_id' => $id,
+			));
 		}
 	}
 	

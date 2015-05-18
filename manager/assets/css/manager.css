@@ -100,29 +100,73 @@ body {
 	right: 0;
 	bottom: 0;
 	padding: 15px;
+	padding-bottom: 0px;
+	overflow: auto;
 }
 
-#manager #sidebar {
+#manager>.row {
+	min-height: 100%;
+}
+
+#sidebar-content .panel-group {
 	height: 100%;
-	overflow: hidden;
+	overflow: auto;
+	margin-bottom: 0;
 }
 
 #sidebar-content {
-	position: absolute;
-	top: 42px;
-	bottom: 0;
-	left: 15px;
-	right: 15px;
-	overflow: auto;
+	padding-bottom: 30px;
 	padding-top: 15px;
 }
 
-#manager #content-area {
-	height: 100%;
-	overflow: auto;
+@media (min-width: 768px){
+
+	#manager {
+		padding-bottom: 15px;
+	}
+
+	#manager #sidebar {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	#manager #content-area {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	#sidebar-content {
+		position: absolute;
+		top: 42px;
+		bottom: 0;
+		left: 15px;
+		right: 15px;
+		overflow: hidden;
+		padding-top: 15px;
+		padding-bottom: 0px;
+	}
+
+	#manager>.row {
+		height: 100%;
+	}
+	
 }
 
 #content-area textarea[id^="main_content_"] {
 	resize: vertical;
-	min-height: 400px;
+	min-height: 50vh;
+}
+
+#manager-editor {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	flex-direction: column;
+}
+
+#editor-form {
+	overflow-y: auto;
+	overflow-x: hidden;
+	margin-top: 15px;
+	flex: 1;
 }
