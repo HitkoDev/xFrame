@@ -119,9 +119,10 @@ body {
 
 #manager #content-area {
 	height: 100%;
+	overflow: auto;
 }
 
-#content-area textarea[id^="content"] {
+#content-area textarea[id^="main_content_"] {
 	resize: vertical;
 	min-height: 400px;
 }

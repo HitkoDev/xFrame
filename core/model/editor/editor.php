@@ -5,6 +5,10 @@ class Editor {
 	private $loaded = false;
 	
 	function __construct(){
+		$this->init();
+	}
+	
+	private function init(){
 		global $xFrame;
 		
 		$id = $xFrame->getAPIParamter('id');
@@ -12,7 +16,7 @@ class Editor {
 			$id = $id[0];
 			$drafts = $xFrame->getDBTable('draft');
 			$draft = $drafts->find(array(
-				'targetID' => $id,
+				'targetID' => new MongoId($id),
 			));
 			if($draft->hasNext()){
 				$this->draft = $draft->getNext();
@@ -74,19 +78,97 @@ class Editor {
 				if($tab == 'main' && isset($this->draft[$key])) $value = $this->draft[$key];
 				$id = (string) $this->draft['targetID'];
 				$editor = $xFrame->parse($field['element'], array(
-					'name' => $key,
-					'key' => $key . '_' . $id,
+					'name' => htmlspecialchars($key),
+					'key' => htmlspecialchars($tab . '_' . $key . '_' . $id),
 					'required' => $req,
-					'type' => $type,
-					'value' => str_replace(array('[', ']', '<', '>'), array('&#91;', '&#93;', '&lt;', '&gt;'), $value),
-					'_id' => $id,
+					'type' => htmlspecialchars($type),
+					'value' => str_replace(array('[', ']', '<', '>'), array('&#91;', '&#93;', '&lt;', '&gt;'), htmlspecialchars($value)),
+					'_id' => htmlspecialchars($id),
 				));
-				if($editor) $fl[$key] = $editor;
+				if(!isset($fl[ $field['group'] ])) $fl[ $field['group'] ] = array();
+				if($editor) $fl[ $field['group'] ][$key] = $editor;
 			}
 			$this->fields[$tab] = $fl;
 			return $fl;
 		}
 		return false;
+	}
+	
+	function getID(){
+		return (string) $this->draft['targetID'];
+	}
+	
+	function getClass(){
+		return (string) $this->draft['class'];
+	}
+	
+	function updateFields(){
+		global $xFrame;
+		
+		$success = true;
+		$message = array();
+		foreach($_POST as $key => $value){
+			$k = array_map('trim', explode('_', $key));
+			if(is_string($value)) $value = trim($value);
+			$tab = $k[0];
+			$field = $k[1];
+			$id = new MongoId($k[2]);
+			if($this->draft['targetID'] != $id){
+				$message[$key] = array(
+					'status' => 'err',
+					'desc' => 'id mismatch',
+				);
+				$success = false;
+				continue;
+			}
+			if($tab == 'main'){
+				$this->draft[$field] = $value;
+				$message[$key] = array(
+					'status' => 'ok',
+				);
+			}
+		}
+		$drafts = $xFrame->getDBTable('draft');
+		$drafts->update(array(
+			'_id' => $this->draft['_id'],
+		), $this->draft);
+		return array(
+			'success' => $success,
+			'message' => array(
+				
+			),
+		);
+	}
+	
+	function save(){
+		global $xFrame;
+		$this->discard(false);
+		$class = $this->draft['class'];
+		unset($this->draft['class']);
+		$id = $this->draft['targetID'];
+		unset($this->draft['targetID']);
+		$this->draft['_id'] = $id;
+		
+		$table = $xFrame->getDBTable($class);
+		$table->update(array(
+			'_id' => $this->draft['_id'],
+		), $this->draft);
+		$drafts = $xFrame->getDBTable('draft');
+		$drafts->update(array(
+			'_id' => $this->draft['_id'],
+		), $this->draft);
+	}
+	
+	function discard($init = true){
+		global $xFrame;
+		$drafts = $xFrame->getDBTable('draft');
+		$drafts->remove(array(
+			'_id' => $this->draft['_id'],
+		));
+		if($init){
+			$this->init();
+			return $xFrame->parse('function.Editor');
+		}
 	}
 	
 }

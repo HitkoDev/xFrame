@@ -27,12 +27,11 @@ var fetch = function(i, item, target){
 		success : function(data, status, el){
 			console.log(data, status);
 			var callback = $(item).attr('data-success');
-			if(callback){
-				window[ callback ](data, status);
-			} else {
-				for(var key in data[0]){
-					$(key).html(data[0][key]);
-				}
+			for(var key in data[0]){
+				$(key).html(data[0][key]);
+			}
+			if(!callback || typeof window[ callback ] != 'function' || window[ callback ](data, status)){
+				
 			}
 			$(target).toggleClass('xFrame-loadable', false);
 		}
@@ -85,3 +84,19 @@ var toggleEditor = function(editor, button){
 		tinymce.get(editor).hide();
 	}
 };
+
+var setEditorUpdate = function(data, status){
+	$('#managerEditor input, #managerEditor select, #managerEditor textarea').each(function(i, el){
+		var name = $(el).attr('name');
+		$(el).attr('data-form', "#managerEditor [name='" + name + "']");
+		$(el).attr('data-url', "execute/model:editor/action:updateFields/id:" + name.split('_')[2]);
+		$(el).attr('data-success', 'fieldError');
+		$(el).on('change', function(){
+			fetch(i, this);
+		});
+	});
+}
+
+var fieldError = function(data, status){
+	console.log(data[0]);
+}

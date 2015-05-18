@@ -126,23 +126,39 @@ class xFrame {
 		return $this->models[$name];
 	}
 	
-	function parse($item, $properties = array(), $propertySets = array()){
+	function parse($item, $properties = array(), $propertySets = array('default'), $clean = false){
 		$item = array_map('trim', explode('.', $item, 2));
+		$output = '';
 		if(count($item) > 0){
 			if(count($item) == 1 || $item[0] == 'property'){		// item without a type is interpreted as a property
 				if(count($item) == 2) $item[0] = $item[1];
-				if(isset($properties[ $item[0] ])) return $properties[ $item[0] ];
-				if($this->context) return $this->context->getProperty($item[0], 'XFRAME_UNPARSABLE_PROPERTY');
-				return 'XFRAME_UNPARSABLE_PROPERTY';
+				if(isset($properties[ $item[0] ])){
+					$output = $properties[ $item[0] ];
+				} elseif($this->context){
+					$output = $this->context->getProperty($item[0], 'XFRAME_UNPARSABLE_PROPERTY');
+				} else {
+					$output = 'XFRAME_UNPARSABLE_PROPERTY';
+				}
 			} else {
 				$item = $this->loadResource('parsable', array(
 					'type' => $item[0],
 					'identifier' => $item[1],
 				));
-				if($item) return $item->parse($properties, $propertySets);
+				if($item) $output = $item->parse($properties, $propertySets);
 			}
 		}
-		return '';
+		if($clean) $output = $this->clean($output);
+		return $output;
+	}
+	
+	function clean($text){
+		$text = $this->parseText($text);
+		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){	// extract tags
+			foreach($tags as $tag){
+				$text = str_replace($tag[0], '', $text);
+			}
+		}
+		return $text;
 	}
 	
 	// receives text and parses any tags that may be contained within
