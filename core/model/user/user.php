@@ -31,6 +31,7 @@ class User {
 			'message' => 'Wrong password',
 		);
 		$xFrame->setSessionData('user', $user->_id);
+		$xFrame->updateUser();
 		return array(
 			'success' => true,
 			'message' => 'Successfully logged in',
@@ -44,6 +45,7 @@ class User {
 			'message' => 'No one is logged in',
 		);
 		$xFrame->setSessionData('user', '');
+		$xFrame->updateUser();
 		return array(
 			'success' => true,
 			'message' => 'Successfully logged out',

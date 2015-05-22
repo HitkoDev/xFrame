@@ -190,3 +190,8 @@ body {
 .table > tbody > tr > td {
 	vertical-align: middle;
 }
+
+#navbar {
+	padding-right: 15px;
+	padding-left: 15px;
+}

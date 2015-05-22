@@ -16,15 +16,7 @@ class xFrame {
 		$this->getModel('database');
 		$this->getModel('session');
 		
-		// load user if it's attached to this session
-		$this->user = $this->loadResource('access', array(
-			'_id' => $this->getSessionData('user'),
-		));
-		// otherwise load default user
-		if(!$this->user) $this->user = $this->loadResource('access', array(
-			'identifier' => 'default',
-			'type' => 'defaultUser',
-		));
+		$this->updateUser();
 		
 		if($context) $this->context = $this->loadContext($context);
 		
@@ -58,6 +50,18 @@ class xFrame {
 				if($this->context) echo $this->parse($this->context->getProperty('template'));
 				break;
 		}
+	}
+	
+	function updateUser(){
+		// load user if it's attached to this session
+		$this->user = $this->loadResource('access', array(
+			'_id' => $this->getSessionData('user'),
+		));
+		// otherwise load default user
+		if(!$this->user) $this->user = $this->loadResource('access', array(
+			'identifier' => 'default',
+			'type' => 'defaultUser',
+		));
 	}
 	
 	// run requested model->action() (such as user->login()) and print results in JSON array
