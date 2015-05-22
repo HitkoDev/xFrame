@@ -5,6 +5,7 @@ class Editor {
 	private $loaded = false;
 	
 	function __construct(){
+		$this->propertyTabs = array('property', 'context', 'category');
 		$this->init();
 	}
 	
@@ -71,10 +72,10 @@ class Editor {
 	function getFields($tab, $set = ''){
 		if(isset($this->fields[$tab])) return $this->fields[$tab];
 		global $xFrame;
-		if(isset($this->editor[$tab]) || $tab == 'property'){
+		if(isset($this->editor[$tab]) || in_array($tab, $this->propertyTabs)){
 			$fl = array();
 			$fields = $this->editor[$tab];
-			if($tab == 'property'){
+			if(in_array($tab, $this->propertyTabs)){
 				if(!isset($this->draft['property_def'])) $this->draft['property_def'] = array();
 				$fields = $this->draft['property_def'];
 			}
@@ -86,7 +87,7 @@ class Editor {
 				if(isset($field['type'])) $type = $field['type'];
 				$value = '';
 				if($tab == 'main' && isset($this->draft[$key])) $value = $this->draft[$key];
-				if($tab == 'property' && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
+				if(in_array($tab, $this->propertyTabs) && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
 				$id = (string) $this->draft['targetID'];
 				$editor = $xFrame->parse($field['element'], array(
 					'name' => htmlspecialchars($key),
@@ -107,9 +108,9 @@ class Editor {
 		return false;
 	}
 	
-	function listPropertySets(){
+	function listPropertySets($tab = 'property'){
 		$sets = array();
-		foreach($this->draft['property'] as $key => $val){
+		foreach($this->draft[$tab] as $key => $val){
 			$sets[] = $key;
 		}
 		return $sets;
@@ -204,17 +205,19 @@ class Editor {
 		if($class && $type){
 			$class = $class[0];
 			$type = $type[0];
-			$id = new MongoId();
-			$this->draft = array(
+			$db = $xFrame->getDBTable('classType');
+			$classDef = $db->find(array(
 				'class' => $class,
 				'type' => $type,
-				'targetID' => $id,
-				'new' => true,
-				'property' => array(
-					'default' => array('properties' => array()),
-				),
-				'property_def' => array(),
-			);
+			));
+			if($classDef->hasNext()){
+				$this->editor = $classDef->getNext();
+			}
+			$id = new MongoId();
+			
+			$this->draft = $this->editor['newElement'];
+			$this->draft['targetID'] = $id;
+			$this->draft['new'] = true;
 			$drafts = $xFrame->getDBTable('draft');
 			$drafts->insert($this->draft);
 			$this->loaded = true;
@@ -227,15 +230,25 @@ class Editor {
 			if($this->editor[$tab][$field]['required'] && !$value){
 				return false;
 			}
+			if($this->editor[$tab][$field]['type'] == 'password') $value = password_hash($value, PASSWORD_DEFAULT);
 			$this->draft[$field] = $value;
 			return true;
-		} elseif($tab == 'property'){
+		} elseif(in_array($tab, $this->propertyTabs)){
 			if(!$value) $value = $this->draft['property_def'][$field]['default'];
 			if($this->draft['property_def'][$field]['required'] && !$value){
 				return false;
 			}
+			if($this->draft['property_def'][$field]['type'] == 'password') $value = password_hash($value, PASSWORD_DEFAULT);
 			if(!isset($this->draft[$tab][$set])) $this->draft[$tab][$set] = array('properties' => array());
 			$this->draft[$tab][$set]['properties'][$field] = $value;
+		} else {
+			if(!$value) $value = $this->editor[$tab][$field]['default'];
+			if($this->editor[$tab][$field]['required'] && !$value){
+				return false;
+			}
+			if($this->editor[$tab][$field]['type'] == 'password') $value = password_hash($value, PASSWORD_DEFAULT);
+			$this->draft[$tab][$field] = $value;
+			return true;
 		}
 		return true;
 	}
