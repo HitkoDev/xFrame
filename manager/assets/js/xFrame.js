@@ -31,10 +31,12 @@ var fetch = function(i, item, target){
 		success : function(data, status, el){
 			console.log(data, status);
 			var callback = $(item).attr('data-success');
+			var updated = false;
 			for(var key in data[0]){
 				$(key).html(data[0][key]);
+				updated = true;
 			}
-			if(!callback || typeof window[ callback ] != 'function' || window[ callback ](data, status)){
+			if(!callback || typeof window[ callback ] != 'function' || window[ callback ](data, status, updated)){
 				
 			}
 			$(target).toggleClass('xFrame-loadable', false);
@@ -89,7 +91,8 @@ var toggleEditor = function(editor, button){
 	}
 };
 
-var setEditorUpdate = function(data, status){
+var setEditorUpdate = function(data, status, updated){
+	if(!updated) return;
 	$('#manager-editor input, #manager-editor select, #manager-editor textarea').each(function(i, el){
 		var name = $(el).attr('name');
 		$(el).attr('data-form', "#manager-editor [name='" + name + "']");
@@ -101,6 +104,31 @@ var setEditorUpdate = function(data, status){
 	});
 }
 
-var fieldError = function(data, status){
+var toggleActive = function(el, on){
+	if(typeof on == 'undefined'){
+		$(el).siblings().toggleClass('active', false);
+		$(el).toggleClass('active', true);
+	} else {
+		$(el).toggleClass('active', on);
+	}
+	$('.navbar-collapse').collapse('hide');
+}
+
+var collapseSidebar = function(){
+	if (window.matchMedia('(max-width: 767px)').matches){
+		$('#sidebar-content .panel-collapse').collapse('hide');
+	}
+}
+
+var fieldError = function(data, status, updated){
+	if(updated) setEditorUpdate(data, status, updated);
 	console.log(data[0]);
+}
+
+var showOverlay = function(){
+	$('#overlay').toggleClass('visible', true);
+}
+
+var hideOverlay = function(){
+	$('#overlay').toggleClass('visible', false);
 }

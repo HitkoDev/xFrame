@@ -56,6 +56,7 @@ body {
 .overlay-sizer {
 	display: inline-block;
 	max-width: 0vw;
+	width: 50vw;
 	max-height: 0vh;
 	overflow: hidden;
 	transform: translate(-50%, -50%);
@@ -64,13 +65,26 @@ body {
 	-ms-transition: all 0.25s ease-in-out;
 	-o-transition: all 0.25s ease-in-out;
 	transition: all 0.25s ease-in-out;
+	display: flex;
+	flex-flow: row;
 }
 
 #overlay-content {
 	overflow: auto;
 	margin-bottom: 0;
 	width: 100%;
-	height: 100%;
+	flex: 1 1 100%;
+}
+
+#overlay-close {
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	z-index: 500;
+	font-size: 18px;
+	visibility: hidden;
+	padding: 5px;
+	border-radius: 30px;
 }
 
 #overlay.visible .overlay-sizer {
@@ -81,6 +95,9 @@ body {
 	-ms-transition: all 1s ease-in-out;
 	-o-transition: all 1s ease-in-out;
 	transition: all 1s ease-in-out;
+}
+#overlay.visible #overlay-close {
+	visibility: visible;
 }
 
 #manager-login {
@@ -116,7 +133,6 @@ body {
 
 #sidebar-content {
 	padding-bottom: 30px;
-	padding-top: 15px;
 }
 
 @media (min-width: 768px){
@@ -136,14 +152,9 @@ body {
 	}
 
 	#sidebar-content {
-		position: absolute;
-		top: 42px;
-		bottom: 0;
-		left: 15px;
-		right: 15px;
-		overflow: hidden;
-		padding-top: 15px;
+		overflow: auto;
 		padding-bottom: 0px;
+		max-height: 100%;
 	}
 
 	#manager>.row {
@@ -165,8 +176,17 @@ body {
 }
 
 #editor-form {
+	flex: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
-	margin-top: 15px;
-	flex: 1;
+	margin: 15px -15px 0;
+	padding: 0 15px;
+}
+
+.table > thead > tr > th {
+	vertical-align: bottom;
+}
+
+.table > tbody > tr > td {
+	vertical-align: middle;
 }

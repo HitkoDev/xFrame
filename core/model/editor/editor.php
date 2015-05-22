@@ -64,12 +64,20 @@ class Editor {
 		return $this->loaded;
 	}
 	
-	function getFields($tab){
+	function getTabs(){
+		return $this->editor['tabs'];
+	}
+	
+	function getFields($tab, $set = ''){
 		if(isset($this->fields[$tab])) return $this->fields[$tab];
 		global $xFrame;
-		if(isset($this->editor[$tab])){
+		if(isset($this->editor[$tab]) || $tab == 'property'){
 			$fl = array();
 			$fields = $this->editor[$tab];
+			if($tab == 'property'){
+				if(!isset($this->draft['property_def'])) $this->draft['property_def'] = array();
+				$fields = $this->draft['property_def'];
+			}
 			uasort($fields, "fieldComparator");
 			foreach($fields as $key => $field){
 				$req = '';
@@ -78,14 +86,17 @@ class Editor {
 				if(isset($field['type'])) $type = $field['type'];
 				$value = '';
 				if($tab == 'main' && isset($this->draft[$key])) $value = $this->draft[$key];
+				if($tab == 'property' && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
 				$id = (string) $this->draft['targetID'];
 				$editor = $xFrame->parse($field['element'], array(
 					'name' => htmlspecialchars($key),
-					'key' => htmlspecialchars($tab . '_' . $key . '_' . $id),
+					'key' => htmlspecialchars($tab . '_' . $key . '_' . $id . '_' . $set),
 					'required' => $req,
 					'type' => htmlspecialchars($type),
 					'value' => str_replace(array('[', ']', '<', '>'), array('&#91;', '&#93;', '&lt;', '&gt;'), htmlspecialchars($value)),
 					'_id' => htmlspecialchars($id),
+					'class' => htmlspecialchars($this->draft['class']),
+					'classType' => htmlspecialchars($this->draft['type']),
 				));
 				if(!isset($fl[ $field['group'] ])) $fl[ $field['group'] ] = array();
 				if($editor) $fl[ $field['group'] ][$key] = $editor;
@@ -94,6 +105,95 @@ class Editor {
 			return $fl;
 		}
 		return false;
+	}
+	
+	function listPropertySets(){
+		$sets = array();
+		foreach($this->draft['property'] as $key => $val){
+			$sets[] = $key;
+		}
+		return $sets;
+	}
+	
+	function newSet(){
+		if(isset($_POST['property-set-name'])){
+			$set = $_POST['property-set-name'];
+			if(!isset($this->draft['properties'][$set])){
+				$this->draft['properties'][$set] = array();
+				$this->saveDraft();
+				return array(
+					'success' => true,
+					'message' => 'ok',
+				);
+			}
+			return array(
+				'success' => false,
+				'message' => 'Set already exists',
+			);
+		}
+		return array(
+			'success' => false,
+			'message' => 'Empty name',
+		);
+	}
+	
+	function addField(){
+		global $xFrame;
+		$tab = $xFrame->getAPIParamter('tab');
+		if(!$tab) return array(
+			'success' => false,
+			'message' => 'Specify tab',
+		);
+		$tab = $tab[0];
+		$key = isset($_POST['field-name']) ? trim($_POST['field-name']) : '';
+		if(!$key) return array(
+			'success' => false,
+			'message' => 'Missing key',
+		);
+		$type = isset($_POST['field-type']) ? trim($_POST['field-type']) : '';
+		if(!$type) return array(
+			'success' => false,
+			'message' => 'Missing type',
+		);
+		$element = isset($_POST['field-element']) ? trim($_POST['field-element']) : '';
+		if(!$type) return array(
+			'success' => false,
+			'message' => 'Missing element',
+		);
+		$default = isset($_POST['field-default']) ? trim($_POST['field-default']) : '';
+		$required = (isset($_POST['field-required']) && trim($_POST['field-required'])) ? true : false;
+		$group = (isset($_POST['field-group']) && trim($_POST['field-group']) > 0) ? trim($_POST['field-group']) : 1;
+		$order = (isset($_POST['field-order']) && trim($_POST['field-order']) > 0) ? trim($_POST['field-order']) : 0;
+		
+		$field = array(
+			'default' => $default,
+			'element' => $element,
+			'required' => $required,
+			'type' => $type,
+			'ordering' => $order,
+			'group' => $group,
+		);
+		
+		if($tab == 'property' && !isset($this->draft['property_def'][$key])){
+			$this->draft['property_def'][$key] = $field;
+			$this->saveDraft();
+			return array(
+				'success' => true,
+				'message' => 'ok',
+			);
+		}
+		if(!isset($this->editor[$tab][$key])){
+			$this->editor[$tab][$key] = $field;
+			$this->saveEditor();
+			return array(
+				'success' => true,
+				'message' => 'ok',
+			);
+		}
+		return array(
+			'success' => false,
+			'message' => 'Field exists',
+		);
 	}
 	
 	function newElement(){
@@ -110,6 +210,10 @@ class Editor {
 				'type' => $type,
 				'targetID' => $id,
 				'new' => true,
+				'property' => array(
+					'default' => array('properties' => array()),
+				),
+				'property_def' => array(),
 			);
 			$drafts = $xFrame->getDBTable('draft');
 			$drafts->insert($this->draft);
@@ -117,7 +221,7 @@ class Editor {
 		}
 	}
 	
-	function setField($tab, $field, $value){
+	function setField($tab, $field, $value, $set = ''){
 		if($tab == 'main'){
 			if(!$value) $value = $this->editor[$tab][$field]['default'];
 			if($this->editor[$tab][$field]['required'] && !$value){
@@ -125,6 +229,13 @@ class Editor {
 			}
 			$this->draft[$field] = $value;
 			return true;
+		} elseif($tab == 'property'){
+			if(!$value) $value = $this->draft['property_def'][$field]['default'];
+			if($this->draft['property_def'][$field]['required'] && !$value){
+				return false;
+			}
+			if(!isset($this->draft[$tab][$set])) $this->draft[$tab][$set] = array('properties' => array());
+			$this->draft[$tab][$set]['properties'][$field] = $value;
 		}
 		return true;
 	}
@@ -136,6 +247,15 @@ class Editor {
 		$drafts->update(array(
 			'_id' => $this->draft['_id'],
 		), $this->draft);
+	}
+	
+	function saveEditor(){
+		global $xFrame;
+		
+		$defs = $xFrame->getDBTable('classType');
+		$defs->update(array(
+			'_id' => $this->editor['_id'],
+		), $this->editor);
 	}
 	
 	function getID(){
@@ -151,12 +271,14 @@ class Editor {
 		
 		$success = true;
 		$message = array();
+		$return = array();
 		foreach($_POST as $key => $value){
 			$k = array_map('trim', explode('_', $key));
 			if(is_string($value)) $value = trim($value);
 			$tab = $k[0];
 			$field = $k[1];
 			$id = new MongoId($k[2]);
+			$set = $k[3];
 			if($this->draft['targetID'] != $id){
 				$message[$key] = array(
 					'status' => 'err',
@@ -165,11 +287,16 @@ class Editor {
 				$success = false;
 				continue;
 			}
-			$resp = $this->setField($tab, $field, $value);
-			if($this->setField($tab, $field, $value)){
+			/*$resp = $this->setField($tab, $field, $value);
+			$set = $xFrame->getAPIParamter('set');
+			if($set) $set = $set[0];*/
+			if($this->setField($tab, $field, $value, $set)){
 				$message[$key] = array(
 					'status' => 'ok',
 				);
+				if($tab == 'main' && $field == 'type'){
+					$return = array_merge($return, $xFrame->parse('function.Editor'));
+				}
 			} else {
 				$message[$key] = array(
 					'status' => 'err',
@@ -180,10 +307,9 @@ class Editor {
 			}
 		}
 		$this->saveDraft();
-		return array(
-			'success' => $success,
-			'message' => $message,
-		);
+		$return['success'] = $success;
+		$return['message'] = $message;
+		return $return;
 	}
 	
 	function save(){
