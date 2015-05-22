@@ -69,6 +69,17 @@ class Editor {
 		return $this->editor['tabs'];
 	}
 	
+	function getValue($name, $tab = 'main', $set = ''){
+		if($tab == 'main'){
+			if(isset($this->draft[$name])) return $this->draft[$name];
+		} elseif(in_array($tab, $this->propertyTabs)){
+			if(isset($this->draft[$tab][$set][$name])) return $this->draft[$tab][$set][$name];
+		} else {
+			if(isset($this->draft[$tab][$name])) return $this->draft[$tab][$name];
+		}
+		return false;
+	}
+	
 	function getFields($tab, $set = ''){
 		if(isset($this->fields[$tab])) return $this->fields[$tab];
 		global $xFrame;
