@@ -56,7 +56,7 @@ body {
 .overlay-sizer {
 	display: inline-block;
 	max-width: 0vw;
-	width: 50vw;
+	width: 90vw;
 	max-height: 0vh;
 	overflow: hidden;
 	transform: translate(-50%, -50%);
@@ -88,8 +88,8 @@ body {
 }
 
 #overlay.visible .overlay-sizer {
-	max-width: 50vw;
-	max-height: 50vh;
+	max-width: 90vw;
+	max-height: 90vh;
 	-webkit-transition: all 1s ease-in-out;
 	-moz-transition: all 1s ease-in-out;
 	-ms-transition: all 1s ease-in-out;
@@ -161,11 +161,17 @@ body {
 		height: 100%;
 	}
 	
+	#overlay.visible .overlay-sizer {
+		width: 50vw;
+		max-width: 50vw;
+		max-height: 50vh;
+	}
+	
 }
 
 #content-area textarea[id^="main_content_"] {
 	resize: vertical;
-	min-height: 50vh;
+	min-height: 30vh;
 }
 
 #manager-editor {
@@ -194,4 +200,30 @@ body {
 #navbar {
 	padding-right: 15px;
 	padding-left: 15px;
+}
+
+.field-move {
+	float: right;
+	cursor: move;
+}
+
+#editor-form :not(tbody).editor-stortable.sorting {
+	border: 2px dashed #ddd;
+	border-radius: 4px;
+	min-height: 60px;
+	margin-bottom: 30px;
+	padding: 15px;
+}
+
+#editor-data {
+	overflow: hidden;
+	margin-bottom: 15px;
+}
+
+#editor-data a {
+	float: right;
+}
+
+#editor-data h2 {
+	margin: 0;
 }

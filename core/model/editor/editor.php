@@ -343,6 +343,38 @@ class Editor {
 		return $this->draft['changed'];
 	}
 	
+	function setFieldsOrder(){
+		global $xFrame;
+		$tab = $xFrame->getAPIParamter('tab');
+		if(!$tab) return array(
+			'success' => false,
+			'message' => 'missing tab'
+		);
+		$tab = $tab[0];
+		if(in_array($tab, $this->propertyTabs)){
+			foreach($_POST as $field => $data){
+				if(isset($this->draft['property_def'][$field])){
+					$this->draft['property_def'][$field]['group'] = 1;
+					$this->draft['property_def'][$field]['ordering'] = $data[1];
+				}
+			}
+			$this->saveDraft();
+		} else {
+			foreach($_POST as $field => $data){
+				if(isset($this->editor[$tab][$field])){
+					$this->editor[$tab][$field]['group'] = $data[0];
+					$this->editor[$tab][$field]['ordering'] = $data[1];
+				}
+			}
+			$this->saveEditor();
+		}
+		$this->init();
+		return array(
+			'success' => true,
+			'message' => 'ok'
+		);
+	}
+	
 	function save(){
 		global $xFrame;
 		$this->discard(false);

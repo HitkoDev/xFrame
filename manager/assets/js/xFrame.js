@@ -12,6 +12,40 @@ var fetch = function(i, item, target){
 		var name = $(item).attr('name');
 		if(data == '') data = name + '=';
 	}
+	// $(target).toggleClass('xFrame-loadable', true);
+	// $.ajax(url, {
+		// data: data,							// append form data
+		// dataType: 'json',
+		// cache: false,
+		// method: 'POST',
+		// error: function(el, status, err){
+			// console.log(status, err);
+			// var callback = $(item).attr('data-error');
+			// if(callback){
+				// window[ callback ](data, status);
+			// } else {
+				
+			// }
+			// $(target).toggleClass('xFrame-loadable', false);
+		// },
+		// success : function(data, status, el){
+			// console.log(data, status);
+			// var callback = $(item).attr('data-success');
+			// var updated = false;
+			// for(var key in data[0]){
+				// $(key).html(data[0][key]);
+				// updated = true;
+			// }
+			// if(!callback || typeof window[ callback ] != 'function' || window[ callback ](data, status, updated)){
+				
+			// }
+			// $(target).toggleClass('xFrame-loadable', false);
+		// }
+	// });
+	fetchContent(url, target, data, $(item).attr('data-success'), $(item).attr('data-error'));
+};
+
+var fetchContent = function(url, target, data, succ, err){
 	$(target).toggleClass('xFrame-loadable', true);
 	$.ajax(url, {
 		data: data,							// append form data
@@ -20,9 +54,8 @@ var fetch = function(i, item, target){
 		method: 'POST',
 		error: function(el, status, err){
 			console.log(status, err);
-			var callback = $(item).attr('data-error');
-			if(callback){
-				window[ callback ](data, status);
+			if(typeof window[err] == 'function' &&window[err](data, status)){
+				
 			} else {
 				
 			}
@@ -30,19 +63,18 @@ var fetch = function(i, item, target){
 		},
 		success : function(data, status, el){
 			console.log(data, status);
-			var callback = $(item).attr('data-success');
 			var updated = false;
 			for(var key in data[0]){
 				$(key).html(data[0][key]);
 				updated = true;
 			}
-			if(!callback || typeof window[ callback ] != 'function' || window[ callback ](data, status, updated)){
+			if(typeof window[succ] == 'function' && window[succ](data, status, updated)){
 				
 			}
 			$(target).toggleClass('xFrame-loadable', false);
 		}
 	});
-};
+}
 
 var fetchAll = function(){
 	$('.xFrame-loadable').each(fetch);
@@ -105,6 +137,46 @@ var setEditorUpdate = function(data, status, updated){
 			});
 		}
 	});
+	$('#editor-form .editor-stortable').each(function(i, el){
+		Sortable.create(el, {
+			handle: '.field-move',
+			animation: 150,
+			group: 'editor',
+			onStart: function(evt){
+				$('#editor-form .editor-stortable').toggleClass('sorting', true);
+			},
+			onEnd: function(evt){
+				$('#editor-form .editor-stortable').toggleClass('sorting', false);
+				$('#editor-save, #editor-discard').toggleClass('disabled', false);
+				editorReorder();
+			},
+		});
+	});
+	$("#manager-editor [name^='main_identifier']").on('change', function(){
+		$('#editor-title').html($(this).val());
+		$('#page-title').html($(this).val() + ' - xFrame manager');
+	});
+}
+
+var editorReorder = function(){
+	var obj = {};
+	$('#editor-form .editor-stortable>*').each(function(i, el){
+		var gr = $(el).parent().attr('data-group');
+		if(typeof obj[gr] == 'undefined') obj[gr] = [];
+		obj[gr].push($(el).attr('data-name'));
+	});
+	var data = {};
+	for(var group in obj){
+		for(var index in obj[group]){
+			data[ obj[group][index] ] = [group, index];
+		}
+	}
+	var cls = $('#editor-data').attr('data-class');
+	var id = $('#editor-data').attr('data-id');
+	var tab = $('#editor-data').attr('data-tab');
+	var set = $('#editor-data').attr('data-set');
+	var url = 'execute/model:parser/action:parse/item:function.Order fields/class:' + cls + '/id:' + id + '/tab:' + tab + '/set:' + set;
+	fetchContent(url, $('#editor-form'), data, 'setEditorUpdate', '');
 }
 
 var toggleActive = function(el, on){
