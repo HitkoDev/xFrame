@@ -35,6 +35,7 @@ class Editor {
 						$target['targetID'] = $target['_id'];
 						unset($target['_id']);
 						$target['class'] = $class;
+						$target['changed'] = false;
 						$this->draft = $target;
 						$drafts->insert($this->draft);
 						$this->loaded = true;
@@ -228,6 +229,7 @@ class Editor {
 			
 			$this->draft = $this->editor['newElement'];
 			$this->draft['targetID'] = $id;
+			$this->draft['changed'] = false;
 			$this->draft['new'] = true;
 			$drafts = $xFrame->getDBTable('draft');
 			$drafts->insert($this->draft);
@@ -236,6 +238,7 @@ class Editor {
 	}
 	
 	function setField($tab, $field, $value, $set = ''){
+		$this->draft['changed'] = true;
 		if($tab == 'main'){
 			if(!$value) $value = $this->editor[$tab][$field]['default'];
 			if($this->editor[$tab][$field]['required'] && !$value){
@@ -336,6 +339,10 @@ class Editor {
 		return $return;
 	}
 	
+	function hasChanged(){
+		return $this->draft['changed'];
+	}
+	
 	function save(){
 		global $xFrame;
 		$this->discard(false);
@@ -346,6 +353,7 @@ class Editor {
 		$new = $this->draft['new'];
 		unset($this->draft['new']);
 		$this->draft['_id'] = $id;
+		unset($this->draft['changed']);
 		
 		$table = $xFrame->getDBTable($class);
 		if($new){
@@ -377,12 +385,7 @@ class Editor {
 	function delete(){
 		global $xFrame;
 		$this->discard(false);
-		$class = $this->draft['class'];
-		unset($this->draft['class']);
-		$id = $this->draft['targetID'];
-		unset($this->draft['targetID']);
 		$new = $this->draft['new'];
-		unset($this->draft['new']);
 		
 		if($new){
 			

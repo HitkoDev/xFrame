@@ -95,12 +95,15 @@ var setEditorUpdate = function(data, status, updated){
 	if(!updated) return;
 	$('#manager-editor input, #manager-editor select, #manager-editor textarea').each(function(i, el){
 		var name = $(el).attr('name');
-		$(el).attr('data-form', "#manager-editor [name='" + name + "']");
-		$(el).attr('data-url', "execute/model:editor/action:updateFields/id:" + name.split('_')[2]);
-		$(el).attr('data-success', 'fieldError');
-		$(el).on('change', function(){
-			fetch(i, this);
-		});
+		if(typeof name != 'undefined'){
+			$(el).attr('data-form', "#manager-editor [name='" + name + "']");
+			$(el).attr('data-url', "execute/model:editor/action:updateFields/id:" + name.split('_')[2]);
+			$(el).attr('data-success', 'fieldError');
+			$(el).on('change', function(){
+				$('#editor-save, #editor-discard').toggleClass('disabled', false);
+				fetch(i, this);
+			});
+		}
 	});
 }
 

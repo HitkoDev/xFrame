@@ -151,7 +151,7 @@ class xFrame {
 				if($item) $output = $item->parse($properties, $propertySets);
 			}
 		}
-		if($clean) $output = $this->clean($output);
+		if($clean && !is_array($output)) $output = $this->clean($output);
 		return $output;
 	}
 	
@@ -186,7 +186,7 @@ class xFrame {
 	}
 	
 	// parses tags; if $cachedOnly == true, this function will leave uncached tags intact
-	private function parseTags($text, $properties = array(), $cachedOnly = false){
+	private function parseTags($text, $properties = array(), $cachedOnly = false, $d = 0){
 		$cacheManager = $this->getModel('cacheManager');
 		if(preg_match_all('/\[\[([^\[\]\?&]+)(([^\[\]]*?[\?&][[:alnum:]]+=`[^`\[\]]*`)*)[^\[\]]*\]\]/u', $text, $tags, PREG_SET_ORDER) > 0){	// extract tags
 			foreach($tags as $tag){
@@ -224,12 +224,12 @@ class xFrame {
 					
 					$value = $this->parse($key, array_merge($properties, $arguments), $propertySets);
 					if($value == 'XFRAME_UNPARSABLE_PROPERTY') continue;		// key is an unrecognised property, which may be recognised later on
-					$value = $this->parseTags($value, $properties, true);
+					$value = $this->parseTags($value, $properties, true, $d + 1);
 					$cacheManager->store($tagHash, $value);
 					
 				}
 					
-				if(!$cachedOnly) $value = $this->parseTags($value, $properties, false);
+				if(!$cachedOnly) $value = $this->parseTags($value, $properties, false, $d + 1);
 				
 				$text = str_replace($tag[0], $value, $text);
 				
