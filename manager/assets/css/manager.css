@@ -135,6 +135,48 @@ body {
 	padding-bottom: 30px;
 }
 
+.sidebar-item {
+	display: block;
+	padding: 3px;
+}
+
+.sidebar-list {
+	padding-left: 0;
+	margin: 0;
+	-webkit-transition-timing-function: ease;
+	-o-transition-timing-function: ease;
+	transition-timing-function: ease;
+	-webkit-transition-duration: .35s;
+	-o-transition-duration: .35s;
+	transition-duration: .35s;
+	-webkit-transition-property: height, visibility;
+	-o-transition-property: height, visibility;
+	transition-property: height, visibility;
+}
+
+.sidebar-list .sidebar-list:empty {
+	max-height: 0;
+	overflow: hidden;
+}
+
+.sidebar-list .sidebar-list:not(:empty) {
+	padding-left: 24px;
+}
+
+.sidebar-item.category span:not(.collapsed)>.glyphicon-chevron-right {
+	-ms-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+	transform: rotate(90deg);
+}
+
+.sidebar-item.category .glyphicon-chevron-right {
+	-webkit-transition: all 0.2s ease-in-out;
+	-moz-transition: all 0.2s ease-in-out;
+	-ms-transition: all 0.2s ease-in-out;
+	-o-transition: all 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
+}
+
 @media (min-width: 768px){
 
 	#manager {

@@ -421,14 +421,11 @@ class Editor {
 		$this->discard(false);
 		$new = $this->draft['new'];
 		
-		if($new){
-			
-		} else {
-			$table = $xFrame->getDBTable($class);
-			$table->remove(array(
-				'_id' => $id,
-			));
-		}
+		$table = $xFrame->getDBTable($this->draft['class']);
+		$table->remove(array(
+			'_id' => $this->draft['targetID'],
+		));
+		init();
 	}
 	
 }
