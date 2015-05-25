@@ -123,8 +123,7 @@ var toggleEditor = function(editor, button){
 	}
 };
 
-var setEditorUpdate = function(data, status, updated){
-	if(!updated) return;
+var setEditorUpdate = function(){
 	$('#manager-editor input, #manager-editor select, #manager-editor textarea').each(function(i, el){
 		var name = $(el).attr('name');
 		if(typeof name != 'undefined'){
@@ -156,6 +155,7 @@ var setEditorUpdate = function(data, status, updated){
 		$('#editor-title').html($(this).val());
 		$('#page-title').html($(this).val() + ' - xFrame manager');
 	});
+	hideOverlay();
 }
 
 var editorReorder = function(){

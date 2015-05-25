@@ -176,7 +176,7 @@ class Editor {
 		$default = isset($_POST['field-default']) ? trim($_POST['field-default']) : '';
 		$required = (isset($_POST['field-required']) && trim($_POST['field-required'])) ? true : false;
 		$group = (isset($_POST['field-group']) && trim($_POST['field-group']) > 0) ? trim($_POST['field-group']) : 1;
-		$order = (isset($_POST['field-order']) && trim($_POST['field-order']) > 0) ? trim($_POST['field-order']) : 0;
+		$order = in_array($tab, $this->propertyTabs) ? count($this->draft['property_def']) : count($this->editor[$tab]);
 		
 		$field = array(
 			'default' => $default,
@@ -187,7 +187,7 @@ class Editor {
 			'group' => $group,
 		);
 		
-		if($tab == 'property' && !isset($this->draft['property_def'][$key])){
+		if(in_array($tab, $this->propertyTabs) && !isset($this->draft['property_def'][$key])){
 			$this->draft['property_def'][$key] = $field;
 			$this->saveDraft();
 			return array(
