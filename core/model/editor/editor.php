@@ -98,8 +98,10 @@ class Editor {
 				$type = '';
 				if(isset($field['type'])) $type = $field['type'];
 				$value = '';
-				if($tab == 'main' && isset($this->draft[$key])) $value = $this->draft[$key];
-				if(in_array($tab, $this->propertyTabs) && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
+				if($type != 'password'){
+					if($tab == 'main' && isset($this->draft[$key])) $value = $this->draft[$key];
+					if(in_array($tab, $this->propertyTabs) && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
+				}
 				$id = (string) $this->draft['targetID'];
 				$editor = $xFrame->parse($field['element'], array(
 					'name' => htmlspecialchars($key),

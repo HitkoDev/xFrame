@@ -26,11 +26,15 @@ class User {
 			'success' => false,
 			'message' => 'No such user',
 		);
-		if(!password_verify($pass, $user->data['password'])) return array(
+		if($user->getValue('status') != 'active') return array(
+			'success' => false,
+			'message' => 'This user is not active',
+		);
+		if(!password_verify($pass, $user->getValue('password'))) return array(
 			'success' => false,
 			'message' => 'Wrong password',
 		);
-		$xFrame->setSessionData('user', $user->_id);
+		$xFrame->setSessionData('user', $user->getValue('_id'));
 		$xFrame->updateUser();
 		return array(
 			'success' => true,
