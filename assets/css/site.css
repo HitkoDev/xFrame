@@ -1,0 +1,362 @@
+#main-container {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+.xFrame-loadable {
+	background: url('../images/spinner.svg') no-repeat;
+	background-position: 50%;
+	background-size: 62px;
+}
+.xFrame-loadable * {
+	visibility: hidden !important;
+}
+
+h1.title,
+h2.title,
+h3.title,
+h4.title,
+h5.title,
+h6.title {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+#overlay {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 10000;
+	background-color: transparent;
+	-webkit-transition: all 0.5s ease-in-out;
+	-moz-transition: all 0.5s ease-in-out;
+	-ms-transition: all 0.5s ease-in-out;
+	-o-transition: all 0.5s ease-in-out;
+	transition: all 0.5s ease-in-out;
+	visibility: hidden;
+}
+
+#overlay.visible {
+	background-color: rgba(0, 0, 0, 0.70);
+	visibility: visible;
+}
+
+#overlay-center {
+	position: fixed;
+	top: 50%;
+	bottom: 50%;
+	left: 50%;
+	right: 50%;
+	overflow: visible;
+}
+
+.overlay-sizer {
+	display: inline-block;
+	max-width: 0vw;
+	width: 90vw;
+	max-height: 0vh;
+	overflow: hidden;
+	transform: translate(-50%, -50%);
+	-webkit-transition: all 0.25s ease-in-out;
+	-moz-transition: all 0.25s ease-in-out;
+	-ms-transition: all 0.25s ease-in-out;
+	-o-transition: all 0.25s ease-in-out;
+	transition: all 0.25s ease-in-out;
+	display: flex;
+	flex-flow: row;
+}
+
+#overlay-content {
+	overflow: auto;
+	margin-bottom: 0;
+	width: 100%;
+	flex: 1 1 100%;
+}
+
+#overlay-close {
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	z-index: 500;
+	font-size: 18px;
+	visibility: hidden;
+	padding: 5px;
+	border-radius: 30px;
+}
+
+#overlay.visible .overlay-sizer {
+	max-width: 90vw;
+	max-height: 90vh;
+	-webkit-transition: all 1s ease-in-out;
+	-moz-transition: all 1s ease-in-out;
+	-ms-transition: all 1s ease-in-out;
+	-o-transition: all 1s ease-in-out;
+	transition: all 1s ease-in-out;
+}
+#overlay.visible #overlay-close {
+	visibility: visible;
+}
+
+#manager-login {
+	padding: 30px;
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+#login-response:empty,
+#register-response:empty {
+	display: none;
+}
+
+#manager {
+	position: absolute;
+	top: 50px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 15px;
+	padding-bottom: 0px;
+	overflow: auto;
+}
+
+#manager>.row {
+	min-height: 100%;
+}
+
+#sidebar-content .panel-group {
+	height: 100%;
+	overflow: auto;
+	margin-bottom: 0;
+}
+
+#sidebar-content {
+	padding-bottom: 30px;
+}
+
+.sidebar-item {
+	display: block;
+	padding: 3px;
+}
+
+.sidebar-list {
+	padding-left: 0;
+	margin: 0;
+	-webkit-transition-timing-function: ease;
+	-o-transition-timing-function: ease;
+	transition-timing-function: ease;
+	-webkit-transition-duration: .35s;
+	-o-transition-duration: .35s;
+	transition-duration: .35s;
+	-webkit-transition-property: height, visibility;
+	-o-transition-property: height, visibility;
+	transition-property: height, visibility;
+}
+
+.sidebar-list .sidebar-list:empty {
+	max-height: 0;
+	overflow: hidden;
+}
+
+.sidebar-list .sidebar-list:not(:empty) {
+	padding-left: 24px;
+}
+
+.sidebar-item.category span:not(.collapsed)>.glyphicon-chevron-right {
+	-ms-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+	transform: rotate(90deg);
+}
+
+.sidebar-item.category .glyphicon-chevron-right {
+	-webkit-transition: all 0.2s ease-in-out;
+	-moz-transition: all 0.2s ease-in-out;
+	-ms-transition: all 0.2s ease-in-out;
+	-o-transition: all 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
+}
+
+#content-area textarea[id^="main_content_"] {
+	resize: vertical;
+	min-height: 30vh;
+}
+
+#manager-editor {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	flex-direction: column;
+}
+
+#editor-form {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	margin: 15px -15px 0;
+	padding: 0 15px;
+}
+
+.table > thead > tr > th {
+	vertical-align: bottom;
+}
+
+.table > tbody > tr > td {
+	vertical-align: middle;
+}
+
+#navbar {
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+.field-move {
+	float: right;
+	cursor: move;
+}
+
+#editor-form :not(tbody).editor-stortable.sorting {
+	border: 2px dashed #ddd;
+	border-radius: 4px;
+	min-height: 60px;
+	margin-bottom: 30px;
+	padding: 15px;
+}
+
+#editor-data {
+	overflow: hidden;
+	margin-bottom: 15px;
+}
+
+#editor-data a {
+	float: right;
+}
+
+#editor-data h2 {
+	margin: 0;
+}
+
+#page-body {
+	margin-top: 100px;
+}
+
+#login-register {
+	display: flex;
+	margin: -15px;
+	flex-direction: column;
+}
+
+#login-register #login,
+#login-register #register {
+	flex: 1;
+	padding: 15px;
+	padding-bottom: 0;
+}
+
+#login-register #login {
+	border-bottom: 1px solid #ddd;
+}
+
+#login-register #register {
+	border-top: 1px solid #ddd;
+}
+
+.form-group .multiple>* {
+	display: inline-block;
+	float: left;
+}
+
+.form-group .multiple>*:not(:last-child) {
+	margin-right: 2%;
+}
+
+#products-list {
+	display: flex;
+	padding: 0;
+	margin: -15px;
+	flex-flow: row wrap;
+}
+
+#products-list>li {
+	flex: 1 1 225px;
+	display: inline-block;
+	padding: 15px;
+}
+
+#products-list>li:empty {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+#product .product-img,
+#products-list .product-img {
+	position: relative;
+	display: block;
+	height: 0;
+	padding: 0;
+	overflow: hidden;
+	padding-bottom: 100%;
+	background-position: 50% 50%;
+	background-size: cover;
+}
+
+@media (max-width: 991px) {
+
+	#login-form .control-label,
+	#register-form .control-label {
+		padding-top: 0;
+		margin-bottom: 5px;
+	}
+
+}
+
+@media (min-width: 768px){
+
+	#manager {
+		padding-bottom: 15px;
+	}
+
+	#manager #sidebar {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	#manager #content-area {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	#sidebar-content {
+		overflow: auto;
+		padding-bottom: 0px;
+		max-height: 100%;
+	}
+
+	#manager>.row {
+		height: 100%;
+	}
+	
+	#overlay.visible .overlay-sizer {
+		width: 50vw;
+		max-width: 50vw;
+		max-height: 50vh;
+	}
+	
+	#login-register {
+		flex-direction: row;
+	}
+
+	#login-register #login {
+		border-bottom: none;
+		border-right: 1px solid #ddd;
+	}
+	
+	#login-register #register {
+		border-top: none;
+		border-left: 1px solid #ddd;
+	}
+	
+}
