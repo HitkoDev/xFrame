@@ -100,7 +100,8 @@ class Editor {
 				$value = '';
 				if($type != 'password'){
 					if($tab == 'main' && isset($this->draft[$key])) $value = $this->draft[$key];
-					if(in_array($tab, $this->propertyTabs) && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
+					elseif(in_array($tab, $this->propertyTabs) && isset($this->draft[$tab][$set]['properties'][$key])) $value = $this->draft[$tab][$set]['properties'][$key];
+					elseif(isset($this->draft[$tab][$key])) $value = $this->draft[$tab][$key];
 				}
 				$id = (string) $this->draft['targetID'];
 				$editor = $xFrame->parse($field['element'], array(
@@ -211,11 +212,11 @@ class Editor {
 		);
 	}
 	
-	function newElement(){
+	function newElement($class = false, $type = false){
 		global $xFrame;
 		
-		$class = $xFrame->getAPIParamter('class');
-		$type = $xFrame->getAPIParamter('type');
+		if(!$class) $class = $xFrame->getAPIParamter('class');
+		if(!$type) $type = $xFrame->getAPIParamter('type');
 		if($class && $type){
 			$class = $class[0];
 			$type = $type[0];
@@ -324,6 +325,7 @@ class Editor {
 					'status' => 'ok',
 				);
 				if($tab == 'main' && $field == 'type'){
+					if($this->draft['new']) $this->newElement(array($this->draft['class']), array($value));
 					$return = array_merge($return, $xFrame->parse('function.Editor'));
 				}
 			} else {
@@ -379,9 +381,9 @@ class Editor {
 	
 	function save(){
 		global $xFrame;
+		$xFrame->parse($this->editor['onSave']);
 		$this->discard(false);
 		$class = $this->draft['class'];
-		unset($this->draft['class']);
 		$id = $this->draft['targetID'];
 		unset($this->draft['targetID']);
 		$new = $this->draft['new'];

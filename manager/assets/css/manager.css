@@ -169,12 +169,18 @@ body {
 	transform: rotate(90deg);
 }
 
-.sidebar-item.category .glyphicon-chevron-right {
+.sidebar-item .glyphicon-chevron-right {
 	-webkit-transition: all 0.2s ease-in-out;
 	-moz-transition: all 0.2s ease-in-out;
 	-ms-transition: all 0.2s ease-in-out;
 	-o-transition: all 0.2s ease-in-out;
 	transition: all 0.2s ease-in-out;
+}
+
+.sidebar-item>.glyphicon-chevron-right:not(.collapsed) {
+	-ms-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+	transform: rotate(90deg);
 }
 
 @media (min-width: 768px){

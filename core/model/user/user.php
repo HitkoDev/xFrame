@@ -56,4 +56,26 @@ class User {
 		);
 	}
 	
+	function register(){
+		global $xFrame;
+		$editor = $xFrame->getModel('editor');
+		foreach($_POST as $key => $value){
+			$parts = array_map('trim', explode('_', $key));
+			$editor->setField($parts[0], $parts[1], $value);
+		}
+		$user = $xFrame->loadResource('access', array(
+			'identifier' => $editor->getValue('identifier'),
+			'type' => 'user',
+		));
+		if($user) return array(
+			'success' => false,
+			'message' => 'username exists',
+		);
+		$editor->save();
+		return array(
+			'success' => true,
+			'message' => 'you can now log in',
+		);
+	}
+	
 }

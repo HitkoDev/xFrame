@@ -244,7 +244,7 @@ class xFrame {
 	
 	function loadResource($class, $conditions){
 		$database = $this->getDBTable($class);
-		$resource = $database->find($conditions);
+		$resource = $database->find($conditions, array());
 		if($resource->hasNext()){
 			return $this->getClass($class, $resource->getNext());
 		}
@@ -273,6 +273,22 @@ class xFrame {
 	
 	function getClassDefinitions(){
 		
+	}
+	
+	function makeUrl($id){
+		$database = $this->getDBTable('content');
+		$url = '';
+		$parent = $id;
+		while($parent){
+			$cur = $database->find(array('_id' => new MongoId($parent)), array('parent' => 1, 'alias' => 1));
+			$parent = '';
+			if($cur->hasNext()){
+				$item = $cur->getNext();
+				$parent = $item['parent'];
+				$url = '/' . $item['alias'] . $url;
+			}
+		}
+		return $url;
 	}
 	
 	function saveResource($class, $resource){
