@@ -111,6 +111,9 @@ var initEditor = function(func){
 			func();
 		});
 	} else {
+		for(key in tinymce.editors){
+			tinymce.editors[key].remove();
+		}
 		func();
 	}
 };

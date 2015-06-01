@@ -57,7 +57,8 @@ var loginSuccess = function(data, status){
 		message.toggleClass('success', true);
 		message.html(data[0]['message']);
 		$('#login-form').css('display', 'none');
-		fetch(0, $('#main-container'));
+		loadContent();
+		fetch(0, $('#navbar-right'));
 	} else {
 		message.toggleClass('warning', true);
 		message.toggleClass('success', false);
@@ -182,6 +183,88 @@ var loadContent = function(){
 	var hash = window.location.hash.replace('#/', '');
 	if(hash == '') hash = '/home';
 	fetchContent('execute/model:parser/action:parse/item:function.Load content', $('#page-body'), {url: hash});
+	$('.navbar-collapse').collapse('hide');
+}
+
+var updateProductsList = function(id){
+	fetchContent('execute/model:parser/action:parse/item:function.Load content/filtersOnly:true/id:' + id, $('#products-list'), $('#products-filters').serialize());
+}
+
+var setPage = function(page){
+	$('#page-num').val(page);
+}
+
+var loadJSLib = function(js, css, check, callback){
+	if(check()){
+		if(css) $("head").append($('<link rel="stylesheet" type="text/css" href="' + css + '">'));
+		$.getScript(js, function(script, status, el){
+			callback();
+		});
+	} else {
+		callback();
+	}
+}
+
+var updatePrice = function(){
+	var form = $('#product-attributes select');
+	var price = parseFloat($('#product-price').attr('data-base'));
+	var stock = parseFloat($('#product-amount').attr('data-stock'));
+	if(!stock) stock = 0;
+	var amount = parseFloat($('#product-amount').val());
+	if(!amount) amount = 0;
+	for(var k = 0; k < form.length; k++){
+		var attr = form[k];
+		var mod = $(attr.selectedOptions[0]).attr('data-operation');
+		console.log(mod);
+		price = eval(price + ' ' + mod);
+	}
+	price *= amount;
+	price = (price.toFixed(2) + ' €').replace('.', ',');
+	$('#product-price').html(price);
+	$('#product-stock').html(stock + '/' + amount);
+	if(stock < amount){
+		$('#product-stock').toggleClass('available', false);
+	} else {
+		$('#product-stock').toggleClass('available', true);
+	}
+}
+
+var updateAmount = function(i, el){
+	var price = $(el).parent().siblings('.price');
+	var total = $(el).parent().siblings('.price-total');
+	var amount = $(el).val();
+	price = $(price).attr('data-base');
+	price = price * amount;
+	var pr = price;
+	price = (price.toFixed(2) + ' €').replace('.', ',');
+	$(total).html(price);
+	totalPrice += pr;
+}
+
+var totalPrice = 0;
+
+var updateAmounts = function(){
+	totalPrice = 0;
+	$('[name="product-amount"]').each(updateAmount);
+	var price = (totalPrice.toFixed(2) + ' €').replace('.', ',');
+	$('#price-total').html(price);
+}
+
+var updateMenuCart = function(){
+	fetch(0, $('#navbar-right'));
+}
+
+var updateCart = function(){
+	updateMenuCart();
+	loadContent();
+}
+
+var goToDeliveryData = function(){
+	location.hash = '/cart/delivery-data';
+}
+
+var goToCheckout = function(){
+	location.hash = '/cart/checkout';
 }
 
 window.onhashchange = function(){

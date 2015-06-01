@@ -213,8 +213,28 @@ h6.title {
 }
 
 .field-move {
-	float: right;
-	cursor: move;
+	display: none;
+}
+
+.cart-total {
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.cart-item .name {
+	display: block;
+	font-weight: bold;
+}
+
+.cart-item .attributes {
+	display: block;
+	font-size: small;
+	padding-left: 15px;
+}
+
+.cart-item .price-total {
+	font-weight: bold;
 }
 
 #editor-form :not(tbody).editor-stortable.sorting {
@@ -263,6 +283,11 @@ h6.title {
 	border-top: 1px solid #ddd;
 }
 
+.form-group .multiple {
+	display: table;
+	width: 100%;
+}
+
 .form-group .multiple>* {
 	display: inline-block;
 	float: left;
@@ -272,11 +297,26 @@ h6.title {
 	margin-right: 2%;
 }
 
+.pay-fields {
+	max-height: 0;
+	-webkit-transition: all 1s ease-in-out;
+	-moz-transition: all 1s ease-in-out;
+	-ms-transition: all 1s ease-in-out;
+	-o-transition: all 1s ease-in-out;
+	transition: all 1s ease-in-out;
+	overflow: hidden;
+}
+
+.pay-fields.visible {
+	max-height: 300px;
+}
+
 #products-list {
 	display: flex;
 	padding: 0;
 	margin: -15px;
 	flex-flow: row wrap;
+	margin-top: 0;
 }
 
 #products-list>li {
@@ -301,6 +341,187 @@ h6.title {
 	padding-bottom: 100%;
 	background-position: 50% 50%;
 	background-size: cover;
+}
+
+li.dropdown>a {
+	display: inline-block;
+}
+
+li.dropdown>a:first-of-type {
+	padding-right: 0px;
+}
+
+li.dropdown>a:last-of-type {
+	padding-left: 10px;
+}
+
+li.dropdown>a:last-of-type>span {
+	-webkit-transition: all 0.2s ease-in-out;
+	-moz-transition: all 0.2s ease-in-out;
+	-ms-transition: all 0.2s ease-in-out;
+	-o-transition: all 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
+}
+
+li.dropdown.open>a:last-of-type>span {
+	-ms-transform: rotate(-180deg);
+	-webkit-transform: rotate(-180deg);
+	transform: rotate(-180deg);
+}
+
+.range-slider {
+	display: table-row;
+}
+
+.range-slider>div {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.range-slider>.slider-inner {
+	width: 100%;
+	padding: 0 15px;
+}
+
+.slider.slider-horizontal {
+	width: 100% !important;
+}
+
+.product .attr-value {
+	font-weight: bold;
+	float: right;
+	font-size: 17px;
+}
+
+.product .attr-label {
+	font-weight: bold;
+}
+
+input.arrow {
+	display: none;
+}
+
+input.arrow  + .glyphicon-chevron-down{
+	-webkit-transition: all 0.2s ease-in-out;
+	-moz-transition: all 0.2s ease-in-out;
+	-ms-transition: all 0.2s ease-in-out;
+	-o-transition: all 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
+	padding: 10px;
+}
+
+input.arrow:not(:checked)  + .glyphicon-chevron-down{
+	-ms-transform: rotate(-180deg);
+	-webkit-transform: rotate(-180deg);
+	transform: rotate(-180deg);
+}
+
+.ordering {
+	display: table-row;
+}
+
+.ordering .ordering-select,
+.ordering .ordering-reverse {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.ordering .ordering-select {
+	width: 100%;
+}
+
+.ordering .ordering-reverse label {
+	margin: 0;
+	padding: 0;
+}
+
+#product-stock {
+	color: #a94442;
+}
+
+#product-stock.available {
+	color: #3c763d;
+}
+
+.cart-item-small {
+	padding: 3px 20px;
+}
+
+.cart-item-small .wrap {
+	display: table;
+	width: 100%;
+}
+
+.cart-item-small .description,
+.cart-item-small .price {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.cart-item-small .price {
+	padding-left: 20px;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.cart-item-small .description .name {
+	display: block;
+	font-size: small;
+	font-weight: bold;
+}
+
+.cart-item-small .description .attributes {
+	display: block;
+	font-size: smaller;
+	padding-left: 15px;
+}
+
+#product-attributes{
+	padding-top: 15px;
+}
+
+#cart-wrap-small {
+	min-width: 40vw;
+}
+
+.cart-item {
+	display: flex;
+	flex-flow: row wrap;
+	margin: 0 -15px;
+	padding: 12px 0;
+}
+
+.cart-item > * {
+	padding: 3px 15px;
+}
+
+.cart-item .description {
+	flex: 100 100;
+	min-width: 200px;
+}
+
+.cart-item .price,
+.cart-item .weight,
+.cart-item .amount,
+.cart-item .delivery,
+.cart-item .price-total {
+	flex: 1 0 125px;
+	text-align: center;
+}
+
+.cart-item .delivery-ready {
+	flex: 1 0 175px;
+	margin: -10px 0;
+}
+
+.cart-item .remove {
+	flex: 0 0 60px;
+}
+
+.cart-item .remove .glyphicon-remove-sign {
+	font-size: 20px;
+	padding: 5px;
 }
 
 @media (max-width: 991px) {
@@ -359,4 +580,19 @@ h6.title {
 		border-left: 1px solid #ddd;
 	}
 	
+}
+
+@media (min-width: 992px) {
+
+	#cart-wrap-small {
+		min-width: 30vw;
+	}
+
+}
+	
+@media (min-width: 1800px){
+
+	#cart-wrap-small {
+		min-width: 20vw;
+	}
 }

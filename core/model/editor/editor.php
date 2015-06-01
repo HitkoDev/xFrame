@@ -9,10 +9,10 @@ class Editor {
 		$this->init();
 	}
 	
-	private function init(){
+	function init($id = '', $class = ''){
 		global $xFrame;
 		
-		$id = $xFrame->getAPIParamter('id');
+		if(!$id) $id = $xFrame->getAPIParamter('id');
 		if($id){
 			$id = $id[0];
 			$drafts = $xFrame->getDBTable('draft');
@@ -23,7 +23,7 @@ class Editor {
 				$this->draft = $draft->getNext();
 				$this->loaded = true;
 			} else {
-				$class = $xFrame->getAPIParamter('class');
+				if(!$class) $class = $xFrame->getAPIParamter('class');
 				if($class){
 					$class = $class[0];
 					$db = $xFrame->getDBTable($class);
@@ -81,8 +81,7 @@ class Editor {
 		return false;
 	}
 	
-	function getFields($tab, $set = ''){
-		if(isset($this->fields[$tab])) return $this->fields[$tab];
+	function getFields($tab, $set = '', $retFields = array()){
 		global $xFrame;
 		if(isset($this->editor[$tab]) || in_array($tab, $this->propertyTabs)){
 			$fl = array();
@@ -93,6 +92,7 @@ class Editor {
 			}
 			uasort($fields, "fieldComparator");
 			foreach($fields as $key => $field){
+				if(count($retFields) > 0 && !in_array($key, $retFields)) continue;
 				$req = '';
 				if(isset($field['required']) && $field['required']) $req = 'required="required"';
 				$type = '';
@@ -109,7 +109,7 @@ class Editor {
 					'key' => htmlspecialchars($tab . '_' . $key . '_' . $id . '_' . $set),
 					'required' => $req,
 					'type' => htmlspecialchars($type),
-					'value' => str_replace(array('[', ']', '<', '>'), array('&#91;', '&#93;', '&lt;', '&gt;'), htmlspecialchars($value)),
+					'value' => is_string($value) ? str_replace(array('[', ']', '<', '>'), array('&#91;', '&#93;', '&lt;', '&gt;'), htmlspecialchars($value)) : $value,
 					'_id' => htmlspecialchars($id),
 					'class' => htmlspecialchars($this->draft['class']),
 					'classType' => htmlspecialchars($this->draft['type']),
@@ -117,7 +117,6 @@ class Editor {
 				if(!isset($fl[ $field['group'] ])) $fl[ $field['group'] ] = array();
 				if($editor) $fl[ $field['group'] ][$key] = $editor;
 			}
-			$this->fields[$tab] = $fl;
 			return $fl;
 		}
 		return false;

@@ -52,6 +52,10 @@ class xFrame {
 		}
 	}
 	
+	function checkAccess($action, $context = '', $category = ''){
+		return $this->user->checkAccess($action, $context, $category);
+	}
+	
 	function updateUser(){
 		// load user if it's attached to this session
 		$this->user = $this->loadResource('access', array(
@@ -76,6 +80,10 @@ class xFrame {
 	
 	function isLoggedIn(){
 		return $this->user->type == 'user';
+	}
+	
+	function getUserId(){
+		return $this->user->_id;
 	}
 	
 	function executeModelAction($models = array(), $actions = array()){
