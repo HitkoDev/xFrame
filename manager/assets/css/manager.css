@@ -275,3 +275,80 @@ body {
 #editor-data h2 {
 	margin: 0;
 }
+
+#content-area .scroll {
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 0 15px;
+}
+
+.cart-item {
+	display: flex;
+	flex-flow: row wrap;
+	margin: 0 -15px;
+	padding: 12px 0;
+}
+
+.cart-item > * {
+	padding: 3px 15px;
+}
+
+.cart-item .description {
+	flex: 100 100;
+	min-width: 150px;
+}
+
+.cart-item .price,
+.cart-item .weight,
+.cart-item .amount,
+.cart-item .delivery,
+.cart-item .price-total {
+	flex: 1 0 120px;
+	text-align: center;
+}
+
+.cart-item .amount {
+	flex-basis: 60px;
+}
+
+.cart-item .amount.input {
+	flex-basis: 120px;
+}
+
+.cart-item .delivery-ready {
+	flex: 1 0 175px;
+	margin: -10px 0;
+}
+
+.order-deliveries {
+	margin: 0;
+	padding: 0;
+}
+
+.order-deliveries li {
+	display: inline-block;
+	padding: 0 30px 30px;
+	vertical-align: top;
+}
+
+.cart-total {
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.cart-item .name {
+	display: block;
+	font-weight: bold;
+}
+
+.cart-item .attributes {
+	display: block;
+	font-size: small;
+	padding-left: 15px;
+}
+
+.cart-item .price-total {
+	font-weight: bold;
+}

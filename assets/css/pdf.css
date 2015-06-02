@@ -1,0 +1,12 @@
+.cart-item {
+	display: table !important;
+	width: 100% !important;
+}
+
+.cart-item > * {
+	display: table-cell !important;
+}
+
+htm, body {
+	font-family: 'Arimo', sans-serif !important;
+}

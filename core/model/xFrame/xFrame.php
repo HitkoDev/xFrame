@@ -86,6 +86,39 @@ class xFrame {
 		return $this->user->_id;
 	}
 	
+	function storeToPdf($text, $file){
+		$html = new DOMDocument('1.0', 'UTF-8');
+		@$html->loadHTML($text);
+		if($html){
+			$scripts = $html->getElementsByTagName('script');
+			foreach($scripts as $script){
+				$script->parentNode->removeChild($script);
+			}
+			$xpath = new DOMXpath($html);
+			$this->parseAttr($xpath, 'href');
+			$this->parseAttr($xpath, 'src');
+			
+			$content = $html->saveHTML();
+		}
+		
+		file_put_contents($file.'.html', $content);
+		return exec('wkhtmltopdf.sh "'.$file.'.html" "'.$file.'.pdf"');
+	}
+	
+	function parseAttr($xpath, $attr){
+		$elements = $xpath->query('//*[@'.$attr.']');
+		foreach($elements as $element){
+			$link = trim($element->getAttribute($attr));
+			if(!$link) return;
+			if((substr($link, 0, 7)=='http://')||(substr($link, 0, 8)=='https://')){
+				
+			} else {
+				$element->setAttribute($attr, 'http://lime.hitko.si/'.$link);
+			}
+		}
+		
+	}
+	
 	function executeModelAction($models = array(), $actions = array()){
 		$return = array();
 		if($models && $actions){

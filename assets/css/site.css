@@ -285,7 +285,6 @@ h6.title {
 
 .form-group .multiple {
 	display: table;
-	width: 100%;
 }
 
 .form-group .multiple>* {
@@ -416,6 +415,10 @@ input.arrow:not(:checked)  + .glyphicon-chevron-down{
 	transform: rotate(-180deg);
 }
 
+#payment-form .multiple {
+	width: 100%;
+}
+
 .ordering {
 	display: table-row;
 }
@@ -498,7 +501,7 @@ input.arrow:not(:checked)  + .glyphicon-chevron-down{
 
 .cart-item .description {
 	flex: 100 100;
-	min-width: 200px;
+	min-width: 150px;
 }
 
 .cart-item .price,
@@ -506,8 +509,16 @@ input.arrow:not(:checked)  + .glyphicon-chevron-down{
 .cart-item .amount,
 .cart-item .delivery,
 .cart-item .price-total {
-	flex: 1 0 125px;
+	flex: 1 0 120px;
 	text-align: center;
+}
+
+.cart-item .amount {
+	flex-basis: 60px;
+}
+
+.cart-item .amount.input {
+	flex-basis: 120px;
 }
 
 .cart-item .delivery-ready {
@@ -522,6 +533,17 @@ input.arrow:not(:checked)  + .glyphicon-chevron-down{
 .cart-item .remove .glyphicon-remove-sign {
 	font-size: 20px;
 	padding: 5px;
+}
+
+.order-deliveries {
+	margin: 0;
+	padding: 0;
+}
+
+.order-deliveries li {
+	display: inline-block;
+	padding: 0 30px 30px;
+	vertical-align: top;
 }
 
 @media (max-width: 991px) {
